@@ -162,22 +162,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>menuBar</sender>
-   <signal>hovered(QAction*)</signal>
-   <receiver>DICOMViewerClass</receiver>
-   <slot>fileHovered(QAction*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>5</x>
-     <y>13</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>7</x>
-     <y>101</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>buttonClose</sender>
    <signal>clicked()</signal>
    <receiver>DICOMViewerClass</receiver>
