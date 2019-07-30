@@ -346,7 +346,6 @@ ASALocalRun/
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
 
 # Fortran module files
 *.mod
@@ -402,7 +401,6 @@ bin/lib-bash
 *.la
 *.lai
 *.so
-*.dll
 *.dylib
 
 # Qt-es
