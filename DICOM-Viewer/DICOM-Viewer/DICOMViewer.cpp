@@ -51,11 +51,16 @@ void DICOMViewer::extractData(DcmFileFormat file)
 
 void DICOMViewer::insertInTable(DcmElement* element, int index)
 {
+
+
 	DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, element->getGTag()), OFstatic_cast(Uint16, element->getETag()));
+	DcmTag tagName = DcmTag(tagKey);
 	QTableWidgetItem* itemTag = new QTableWidgetItem();
 	QTableWidgetItem* itemVR = new QTableWidgetItem();
 	QTableWidgetItem* itemVM = new QTableWidgetItem();
 	QTableWidgetItem* itemLength = new QTableWidgetItem();
+	QTableWidgetItem* itemDescription = new QTableWidgetItem();
+	itemDescription->setText(tagName.getTagName());
 	itemTag->setText(QString::fromStdString(tagKey.toString().c_str()));
 	DcmVR* vr = new DcmVR(element->getVR());
 	itemVR->setText(QString::fromStdString(vr->getVRName()));
@@ -66,4 +71,5 @@ void DICOMViewer::insertInTable(DcmElement* element, int index)
 	ui.tableWidget->setItem(index, 1, itemVR);
 	ui.tableWidget->setItem(index, 2, itemVM);
 	ui.tableWidget->setItem(index, 3, itemLength);
+	ui.tableWidget->setItem(index, 4, itemDescription);
 }

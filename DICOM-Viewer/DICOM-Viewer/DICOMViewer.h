@@ -7,6 +7,7 @@
 #include "dcmtk/dcmdata/dcfilefo.h"
 #include "dcmtk/dcmdata/dcmetinf.h"
 #include "dcmtk/dcmdata/dcvr.h"
+#include "dcmtk/dcmdata/dctag.h"
 
 class DICOMViewer : public QMainWindow
 {
