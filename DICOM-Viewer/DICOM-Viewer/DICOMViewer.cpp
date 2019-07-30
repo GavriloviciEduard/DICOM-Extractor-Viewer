@@ -20,6 +20,7 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 		if (file.loadFile(fileName.toStdString().c_str()).good())
 		{
 			extractData(file);
+			ui.tableWidget->resizeColumnsToContents();
 		}
 		else
 		{
@@ -51,25 +52,32 @@ void DICOMViewer::extractData(DcmFileFormat file)
 
 void DICOMViewer::insertInTable(DcmElement* element, int index)
 {
-
-
 	DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, element->getGTag()), OFstatic_cast(Uint16, element->getETag()));
 	DcmTag tagName = DcmTag(tagKey);
+	DcmVR* vr = new DcmVR(element->getVR());
+	
+	OFString value;
+	element->getOFString(value, 0, true);
+
 	QTableWidgetItem* itemTag = new QTableWidgetItem();
 	QTableWidgetItem* itemVR = new QTableWidgetItem();
 	QTableWidgetItem* itemVM = new QTableWidgetItem();
 	QTableWidgetItem* itemLength = new QTableWidgetItem();
 	QTableWidgetItem* itemDescription = new QTableWidgetItem();
+	QTableWidgetItem* itemValue = new QTableWidgetItem();
+
 	itemDescription->setText(tagName.getTagName());
 	itemTag->setText(QString::fromStdString(tagKey.toString().c_str()));
-	DcmVR* vr = new DcmVR(element->getVR());
 	itemVR->setText(QString::fromStdString(vr->getVRName()));
 	itemVM->setText(QString::fromStdString(std::to_string(element->getVM())));
 	itemLength->setText(QString::fromStdString(std::to_string(element->getLength())));
+	itemValue->setText(QString::fromStdString(value.c_str()));
+
 	ui.tableWidget->insertRow(index);
 	ui.tableWidget->setItem(index, 0, itemTag);
 	ui.tableWidget->setItem(index, 1, itemVR);
 	ui.tableWidget->setItem(index, 2, itemVM);
 	ui.tableWidget->setItem(index, 3, itemLength);
 	ui.tableWidget->setItem(index, 4, itemDescription);
+	ui.tableWidget->setItem(index, 5, itemValue);
 }
