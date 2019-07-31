@@ -71,14 +71,14 @@ void DICOMViewer::insertInTable(DcmElement* element, int index)
 	DcmTag tagName = DcmTag(tagKey);
 	DcmVR vr = DcmVR(element->getVR());
 	
-	OFString value;
-	element->getOFStringArray(value, true);
-	QString str = QString(value.c_str());
-	str.replace("\\" , " ");
-	if (str.size() > 35)
+	std::string str;
+
+	for (int i = 0; i < 10; i++)
 	{
-		str.resize(35);
-		str.append("...");
+		OFString value;
+		element->getOFString(value, i, true);
+		str.append(value.c_str());
+		str.append(" ");
 	}
 
 	DcmWidgetElement widgetElement = DcmWidgetElement(
@@ -87,7 +87,7 @@ void DICOMViewer::insertInTable(DcmElement* element, int index)
 		QString::fromStdString(std::to_string(element->getVM())),
 		QString::fromStdString(std::to_string(element->getLength())),
 		tagName.getTagName(),
-		str);
+		QString::fromStdString(str));
 
 	ui.tableWidget->insertRow(index);
 	ui.tableWidget->setItem(index, 0, new QTableWidgetItem(widgetElement.getItemTag()));
