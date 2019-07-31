@@ -23,6 +23,7 @@ public:
 	QString getItemLength();
 	QString getItemDescription();
 	QString getItemValue();
+	std::string toString();
 
 	bool checkIfContains(QString str);
 };

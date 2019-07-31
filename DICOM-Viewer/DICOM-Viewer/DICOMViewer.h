@@ -23,9 +23,11 @@ class DICOMViewer : public QMainWindow
 		Ui::DICOMViewerClass ui;
 		DcmFileFormat file;
 		std::vector<DcmWidgetElement> elements;
+		std::vector<DcmWidgetElement> nestedElements;
+		int globalIndex = 0;
 
 	protected:
-		void insertInTable(DcmElement* element, int index);
+		void insertInTable(DcmElement* element);
 		void extractData(DcmFileFormat file);
 		void repopulate(std::vector<DcmWidgetElement> source);
 		void getNestedSequences(DcmTagKey tag);

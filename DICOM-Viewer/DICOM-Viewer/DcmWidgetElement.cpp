@@ -47,6 +47,11 @@ QString DcmWidgetElement::getItemValue()
 	return this->itemValue;
 }
 
+std::string DcmWidgetElement::toString()
+{
+	return std::string(this->itemTag.toStdString() + " " + this->itemVM.toStdString() + " "+ this->itemVR.toStdString() + " " + this->itemLength.toStdString() + " " + this->itemDescription.toStdString() + " " + this->itemValue.toStdString());
+}
+
 bool DcmWidgetElement::checkIfContains(QString str)
 {
 	return this->itemTag.contains(str) || this->itemVM.contains(str) || this->itemVR.contains(str) || this->itemLength.contains(str) || this->itemDescription.contains(str) || this->itemValue.contains(str);
