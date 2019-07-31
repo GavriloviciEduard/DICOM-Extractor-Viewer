@@ -4,6 +4,7 @@ DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 {
 	ui.setupUi(this);
 	ui.tableWidget->horizontalHeader()->setStretchLastSection(true);
+	ui.tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 void DICOMViewer::closeButtonClicked()
