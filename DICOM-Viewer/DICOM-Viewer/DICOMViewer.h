@@ -9,6 +9,9 @@
 #include "dcmtk/dcmdata/dcvr.h"
 #include "dcmtk/dcmdata/dctag.h"
 
+#include "DcmWidgetElement.h"
+#include <algorithm>
+
 class DICOMViewer : public QMainWindow
 {
 	Q_OBJECT
@@ -19,12 +22,15 @@ class DICOMViewer : public QMainWindow
 	private:
 		Ui::DICOMViewerClass ui;
 		DcmFileFormat file;
+		std::vector<DcmWidgetElement> elements;
 
 	protected:
 		void insertInTable(DcmElement* element, int index);
 		void extractData(DcmFileFormat file);
+		void repopulate(std::vector<DcmWidgetElement> source);
 	
 	private slots:
 		void fileTriggered(QAction* qaction);
 		void closeButtonClicked();
+		void findText();
 };

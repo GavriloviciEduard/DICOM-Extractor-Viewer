@@ -113,6 +113,7 @@
     </QtRcc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DcmWidgetElement.cpp" />
     <ClCompile Include="DICOMViewer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -124,6 +125,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="DICOMViewer.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DcmWidgetElement.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
