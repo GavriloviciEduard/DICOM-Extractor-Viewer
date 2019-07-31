@@ -21,6 +21,13 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 		{
 			if (file.loadFile(fileName.toStdString().c_str()).good())
 			{
+				if (ui.tableWidget->rowCount())
+				{
+					for (int i = ui.tableWidget->rowCount(); i >= 0; i--)
+					{
+						ui.tableWidget->removeRow(i);
+					}
+				}
 				extractData(file);
 				ui.tableWidget->resizeColumnsToContents();
 			}
@@ -132,5 +139,10 @@ void DICOMViewer::findText()
 			}
 		}
 		repopulate(result);
+		ui.tableWidget->scrollToTop();
+	}
+	else
+	{
+		repopulate(elements);
 	}
 }
