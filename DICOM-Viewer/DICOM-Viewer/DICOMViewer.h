@@ -28,6 +28,8 @@ class DICOMViewer : public QMainWindow
 		void insertInTable(DcmElement* element, int index);
 		void extractData(DcmFileFormat file);
 		void repopulate(std::vector<DcmWidgetElement> source);
+		void getNestedSequences(DcmTagKey tag);
+		void iterateItem(DcmItem *item);
 	
 	private slots:
 		void fileTriggered(QAction* qaction);

@@ -1,4 +1,8 @@
 #include "DICOMViewer.h"
+#include <fstream>
+
+std::ofstream fout("file.out");
+
 
 DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 {
@@ -68,6 +72,7 @@ void DICOMViewer::extractData(DcmFileFormat file)
 void DICOMViewer::insertInTable(DcmElement* element, int index)
 {
 	DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, element->getGTag()), OFstatic_cast(Uint16, element->getETag()));
+	getNestedSequences(tagKey);
 	DcmTag tagName = DcmTag(tagKey);
 	DcmVR vr = DcmVR(element->getVR());
 	
@@ -122,6 +127,49 @@ void DICOMViewer::repopulate(std::vector<DcmWidgetElement> source)
 		ui.tableWidget->setItem(i, 3, new QTableWidgetItem(element.getItemLength()));
 		ui.tableWidget->setItem(i, 4, new QTableWidgetItem(element.getItemDescription()));
 		ui.tableWidget->setItem(i, 5, new QTableWidgetItem(element.getItemValue()));
+	}
+}
+
+void DICOMViewer::getNestedSequences(DcmTagKey tag)
+{
+	DcmSequenceOfItems *sequence = NULL;
+	OFCondition cond = file.getDataset()->findAndGetSequence(tag, sequence, true);
+
+	if (cond.good())
+	{
+		
+		fout << "PARENT" << '\n';
+		fout << "Sequnce has cardinal:" << sequence->card() << '\n';
+		DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, sequence->getGTag()), OFstatic_cast(Uint16, sequence->getETag()));
+		fout << "TagKey" << tagKey.toString() << '\n';
+		fout << "......................." << '\n';
+
+
+
+		for (int i = 0; i < sequence->card(); i++)
+		{
+			DcmItem *item = sequence->getItem(i);
+			DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, item->getGTag()), OFstatic_cast(Uint16, item->getETag()));
+			fout << "TagKey" << tagKey.toString() << '\n';
+			fout << "Item has " << item->getNumberOfValues() << " elements" << '\n';
+
+
+			iterateItem(item);
+		}
+
+		fout << '\n' << '\n';
+
+	}
+
+}
+
+void DICOMViewer::iterateItem(DcmItem * item)
+{
+	for (int i = 0; i < item->getNumberOfValues(); i++)
+	{
+		DcmElement* element = item->getElement(i);
+		DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, element->getGTag()), OFstatic_cast(Uint16, element->getETag()));
+		getNestedSequences(tagKey);
 	}
 }
 
