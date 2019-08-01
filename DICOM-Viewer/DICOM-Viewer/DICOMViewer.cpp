@@ -1,4 +1,9 @@
 #include "DICOMViewer.h"
+#include <fstream>
+
+std::ofstream fout("file.out");
+
+
 
 DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 {
@@ -72,6 +77,8 @@ void DICOMViewer::insertInTable(DcmElement* element)
 		str.append(value.c_str());
 		str.append(" ");
 	}
+	
+	depthRE = 0;
 	getNestedSequences(tagKey);
 
 	if (this->nestedElements.size())
@@ -86,6 +93,9 @@ void DICOMViewer::insertInTable(DcmElement* element)
 				element.getItemDescription(),
 				element.getItemValue());
 
+
+			indent(widgetElement, element.getDepth());
+
 			ui.tableWidget->insertRow(globalIndex);
 			ui.tableWidget->setItem(globalIndex, 0, new QTableWidgetItem(widgetElement.getItemTag()));
 			ui.tableWidget->setItem(globalIndex, 1, new QTableWidgetItem(widgetElement.getItemVR()));
@@ -97,7 +107,11 @@ void DICOMViewer::insertInTable(DcmElement* element)
 			DcmWidgetElement copyElement = DcmWidgetElement(widgetElement);
 			elements.push_back(copyElement);
 			globalIndex++;
+
+			fout <<widgetElement.toString() << " " << "Depth: " << element.getDepth() << '\n';
 		}
+
+		fout << '\n' << '\n';
 		this->nestedElements.clear();
 	}
 	
@@ -124,6 +138,8 @@ void DICOMViewer::insertInTable(DcmElement* element)
 
 		globalIndex++;
 	}
+
+	
 }
 
 void DICOMViewer::repopulate(std::vector<DcmWidgetElement> source)
@@ -155,9 +171,11 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 {
 	DcmSequenceOfItems *sequence = NULL;
 	OFCondition cond = file.getDataset()->findAndGetSequence(tag, sequence, true);
+	
 
 	if (cond.good())
 	{
+
 		DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, sequence->getGTag()), OFstatic_cast(Uint16, sequence->getETag()));
 		DcmTag tagName = DcmTag(tagKey);
 		DcmVR vr = DcmVR(sequence->getVR());
@@ -172,7 +190,7 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 			str.append(" ");
 		}
 
-		DcmWidgetElement widgetElement = DcmWidgetElement(
+		DcmWidgetElement widgetElement1 = DcmWidgetElement(
 			QString::fromStdString(tagKey.toString().c_str()),
 			QString::fromStdString(vr.getVRName()),
 			QString::fromStdString(std::to_string(sequence->getVM())),
@@ -180,7 +198,12 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 			tagName.getTagName(),
 			QString::fromStdString(str));
 
-		this->nestedElements.push_back(widgetElement);
+		widgetElement1.setDepth(depthRE);
+		
+		this->nestedElements.push_back(widgetElement1);
+
+		depthRE++;
+
 		for (int i = 0; i < sequence->card(); i++)
 		{
 			DcmItem *item = sequence->getItem(i);
@@ -189,7 +212,7 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 			DcmTag tagName = DcmTag(tagKey);
 			DcmVR vr = DcmVR(item->getVR());
 
-			DcmWidgetElement widgetElement = DcmWidgetElement(
+			DcmWidgetElement widgetElement2 = DcmWidgetElement(
 				QString::fromStdString(tagKey.toString().c_str()),
 				QString::fromStdString(vr.getVRName()),
 				QString::fromStdString(std::to_string(item->getVM())),
@@ -197,19 +220,32 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 				tagName.getTagName(),
 				QString::fromStdString(""));
 
-			this->nestedElements.push_back(widgetElement);
-			iterateItem(item);
+			widgetElement2.setDepth(depthRE);
 
-			DcmWidgetElement widgetElementDelim = DcmWidgetElement(QString("(FFFE,E0DD)"), QString("??"), QString("0"), QString("0"), QString("ItemDelimitationItem"), QString(""));
+			this->nestedElements.push_back(widgetElement2);
+			
+
+			iterateItem(item,depthRE);
+
+			DcmWidgetElement widgetElementDelim = DcmWidgetElement(QString("(fffe,e00d)"), QString("??"), QString("0"), QString("0"), QString("ItemDelimitationItem"), QString(""));
+			depthRE--;
+			widgetElementDelim.setDepth(depthRE);
 			this->nestedElements.push_back(widgetElementDelim);
 		}
-		DcmWidgetElement widgetElementDelim = DcmWidgetElement(QString("(FFFE,E0DD)"), QString("??"), QString("0"), QString("0"), QString("SequenceDelimitationItem"),QString(""));
+
+		DcmWidgetElement widgetElementDelim = DcmWidgetElement(QString("(fffe,e0dd)"), QString("??"), QString("0"), QString("0"), QString("SequenceDelimitationItem"), QString(""));
+		depthRE--;
+		widgetElementDelim.setDepth(depthRE);
+
 		this->nestedElements.push_back(widgetElementDelim);
 	}
 }
 
-void DICOMViewer::iterateItem(DcmItem * item)
+void DICOMViewer::iterateItem(DcmItem * item,int& depth)
 {
+
+	depth++;
+
 	for (int i = 0; i < item->getNumberOfValues(); i++)
 	{
 		DcmElement* element = item->getElement(i);
@@ -235,8 +271,14 @@ void DICOMViewer::iterateItem(DcmItem * item)
 			QString::fromStdString(std::to_string(element->getLength())),
 			tagName.getTagName(),
 			QString::fromStdString(str));
+	
 
-		this->nestedElements.push_back(widgetElement);
+		if (widgetElement.getItemVR() != "SQ")
+		{
+			widgetElement.setDepth(depth);
+			this->nestedElements.push_back(widgetElement);
+		}
+
 		getNestedSequences(tagKey);
 	}
 }
@@ -263,6 +305,19 @@ void DICOMViewer::alertFailed(std::string message)
 	QMessageBox* messageBox = new QMessageBox();
 	messageBox->setText(QString::fromStdString(message));
 	messageBox->exec();
+}
+
+void DICOMViewer::indent(DcmWidgetElement & element, int depth)
+{
+	QString str = element.getItemTag();
+
+	while (depth--)
+	{
+		str.insert(0, "  ");//2 SPACES DEFAULT
+	}
+
+	element.setItemTag(str);
+
 }
 
 void DICOMViewer::findText()

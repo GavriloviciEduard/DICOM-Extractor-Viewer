@@ -11,6 +11,7 @@ class DcmWidgetElement
 		QString itemLength;
 		QString itemDescription;
 		QString itemValue;
+		int depth = -1;
 
 	public:
 		DcmWidgetElement() { }
@@ -24,6 +25,10 @@ class DcmWidgetElement
 		QString getItemDescription();
 		QString getItemValue();
 		std::string toString();
+		int getDepth();
+		void setDepth(const int& depth);
+		void incrementDepth();
+		void setItemTag(const QString& final);
 
 		bool checkIfContains(QString str);
 };

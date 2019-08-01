@@ -23,6 +23,8 @@ class DICOMViewer : public QMainWindow
 		std::vector<DcmWidgetElement> elements;
 		std::vector<DcmWidgetElement> nestedElements;
 		int globalIndex = 0;
+		int depthRE = 0;
+		
 		
 
 	private:
@@ -30,9 +32,10 @@ class DICOMViewer : public QMainWindow
 		void extractData(DcmFileFormat file);
 		void repopulate(std::vector<DcmWidgetElement> source);
 		void getNestedSequences(DcmTagKey tag);
-		void iterateItem(DcmItem *item);
+		void iterateItem(DcmItem *item, int& depth);
 		void clearTable();
 		void alertFailed(std::string message);
+		void indent(DcmWidgetElement& element, int depth);
 	
 	private slots:
 		void fileTriggered(QAction* qaction);
