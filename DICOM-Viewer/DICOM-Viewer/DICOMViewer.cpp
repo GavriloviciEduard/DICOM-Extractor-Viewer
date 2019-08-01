@@ -29,6 +29,7 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 		{
 			if (file.loadFile(fileName.toStdString().c_str()).good())
 			{
+				ui.tableWidget->scrollToTop();
 				clearTable();
 				extractData(file);
 				ui.tableWidget->resizeColumnsToContents();
@@ -73,7 +74,7 @@ void DICOMViewer::insertInTable(DcmElement* element)
 	for (int i = 0; i < 10; i++)
 	{
 		OFString value;
-		element->getOFString(value, i, true);
+		element->getOFString(value, i, false);
 		str.append(value.c_str());
 		str.append(" ");
 	}
@@ -144,20 +145,17 @@ void DICOMViewer::insertInTable(DcmElement* element)
 
 void DICOMViewer::repopulate(std::vector<DcmWidgetElement> source)
 {
-	ui.tableWidget->clear();
-	QStringList list;
-	list.append("Tag ID");
-	list.append("VR");
-	list.append("VM");
-	list.append("Length");
-	list.append("Description");
-	list.append("Value");
-	ui.tableWidget->setHorizontalHeaderLabels(list);
+	ui.tableWidget->clearContents();
+	for (int i = ui.tableWidget->rowCount(); i >= 0; i--)
+	{
+		ui.tableWidget->removeRow(i);
+	}
 
 	for (int i = 0; i < source.size(); i++)
 	{
 		DcmWidgetElement element = DcmWidgetElement(source[i]);
 
+		ui.tableWidget->insertRow(i);
 		ui.tableWidget->setItem(i, 0, new QTableWidgetItem(element.getItemTag()));
 		ui.tableWidget->setItem(i, 1, new QTableWidgetItem(element.getItemVR()));
 		ui.tableWidget->setItem(i, 2, new QTableWidgetItem(element.getItemVM()));
@@ -181,11 +179,10 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 		DcmVR vr = DcmVR(sequence->getVR());
 
 		std::string str;
-
 		for (int i = 0; i < 10; i++)
 		{
 			OFString value;
-			sequence->getOFString(value, i, true);
+			sequence->getOFString(value, i, false);
 			str.append(value.c_str());
 			str.append(" ");
 		}
@@ -259,7 +256,7 @@ void DICOMViewer::iterateItem(DcmItem * item,int& depth)
 		for (int i = 0; i < 10; i++)
 		{
 			OFString value;
-			element->getOFString(value, i, true);
+			element->getOFString(value, i, false);
 			str.append(value.c_str());
 			str.append(" ");
 		}
