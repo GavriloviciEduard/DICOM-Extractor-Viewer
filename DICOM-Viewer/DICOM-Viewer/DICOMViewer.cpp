@@ -8,6 +8,10 @@ DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 	ui.setupUi(this);
 	ui.tableWidget->horizontalHeader()->setStretchLastSection(true);
 	ui.tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	ui.tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	ui.tableWidget->verticalHeader()->setDefaultSectionSize(12);
+	ui.tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+	ui.tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 
@@ -28,17 +32,16 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 				extractData(file);
 				ui.tableWidget->resizeColumnsToContents();
 			}
-
 			else
 			{
-				alertFailed();
+				alertFailed("Failed to open file!");
 			}
 		}
 	}
 
-	else
+	else if(option == "Close")
 	{
-			//TODO
+		clearTable();
 	}
 	
 }
@@ -263,6 +266,8 @@ void DICOMViewer::clearTable()
 	if (ui.tableWidget->rowCount())
 	{
 		this->nestedElements.clear();
+		this->elements.clear();
+		globalIndex = 0;
 
 		for (int i = ui.tableWidget->rowCount(); i >= 0; i--)
 		{
@@ -271,10 +276,10 @@ void DICOMViewer::clearTable()
 	}
 }
 
-void DICOMViewer::alertFailed()
+void DICOMViewer::alertFailed(std::string message)
 {
 	QMessageBox* messageBox = new QMessageBox();
-	messageBox->setText("Failed to open DICOM file!\n");
+	messageBox->setText(QString::fromStdString(message + '\n'));
 	messageBox->exec();
 }
 

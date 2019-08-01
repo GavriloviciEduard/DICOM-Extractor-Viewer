@@ -32,7 +32,7 @@ class DICOMViewer : public QMainWindow
 		void getNestedSequences(DcmTagKey tag);
 		void iterateItem(DcmItem *item);
 		void clearTable();
-		void alertFailed();
+		void alertFailed(std::string message);
 	
 	private slots:
 		void fileTriggered(QAction* qaction);
