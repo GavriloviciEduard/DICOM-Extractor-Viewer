@@ -1,7 +1,4 @@
 #include "DICOMViewer.h"
-#include <fstream>
-
-std::ofstream fout("file.out");
 
 DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 {
@@ -19,7 +16,6 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 {
 	QString option = qaction->text();
 
-
 	if (option == "Open")
 	{
 		QString fileName = QFileDialog::getOpenFileName(this);
@@ -31,6 +27,7 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 				clearTable();
 				extractData(file);
 				ui.tableWidget->resizeColumnsToContents();
+				this->setWindowTitle("Viewer - " + fileName);
 			}
 			else
 			{
@@ -43,7 +40,6 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 	{
 		clearTable();
 	}
-	
 }
 
 void DICOMViewer::extractData(DcmFileFormat file)
@@ -76,16 +72,19 @@ void DICOMViewer::insertInTable(DcmElement* element)
 		str.append(value.c_str());
 		str.append(" ");
 	}
-
-
 	getNestedSequences(tagKey);
 
-	
 	if (this->nestedElements.size())
 	{
 		for (auto element : this->nestedElements)
 		{
-			DcmWidgetElement widgetElement = DcmWidgetElement(element.getItemTag(),element.getItemVR(),element.getItemVM(),element.getItemLength(),element.getItemDescription(),element.getItemValue());
+			DcmWidgetElement widgetElement = DcmWidgetElement(
+				element.getItemTag(),
+				element.getItemVR(),
+				element.getItemVM(),
+				element.getItemLength(),
+				element.getItemDescription(),
+				element.getItemValue());
 
 			ui.tableWidget->insertRow(globalIndex);
 			ui.tableWidget->setItem(globalIndex, 0, new QTableWidgetItem(widgetElement.getItemTag()));
@@ -98,16 +97,12 @@ void DICOMViewer::insertInTable(DcmElement* element)
 			DcmWidgetElement copyElement = DcmWidgetElement(widgetElement);
 			elements.push_back(copyElement);
 			globalIndex++;
-
 		}
-
 		this->nestedElements.clear();
 	}
 	
-	
 	else
 	{
-
 		DcmWidgetElement widgetElement = DcmWidgetElement(
 			QString::fromStdString(tagKey.toString().c_str()),
 			QString::fromStdString(vr.getVRName()),
@@ -163,7 +158,6 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 
 	if (cond.good())
 	{
-		
 		DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, sequence->getGTag()), OFstatic_cast(Uint16, sequence->getETag()));
 		DcmTag tagName = DcmTag(tagKey);
 		DcmVR vr = DcmVR(sequence->getVR());
@@ -178,7 +172,6 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 			str.append(" ");
 		}
 
-
 		DcmWidgetElement widgetElement = DcmWidgetElement(
 			QString::fromStdString(tagKey.toString().c_str()),
 			QString::fromStdString(vr.getVRName()),
@@ -188,9 +181,6 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 			QString::fromStdString(str));
 
 		this->nestedElements.push_back(widgetElement);
-
-
-
 		for (int i = 0; i < sequence->card(); i++)
 		{
 			DcmItem *item = sequence->getItem(i);
@@ -212,17 +202,10 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 
 			DcmWidgetElement widgetElementDelim = DcmWidgetElement(QString("(FFFE,E0DD)"), QString("??"), QString("0"), QString("0"), QString("ItemDelimitationItem"), QString(""));
 			this->nestedElements.push_back(widgetElementDelim);
-
-
-
 		}
-
-
 		DcmWidgetElement widgetElementDelim = DcmWidgetElement(QString("(FFFE,E0DD)"), QString("??"), QString("0"), QString("0"), QString("SequenceDelimitationItem"),QString(""));
 		this->nestedElements.push_back(widgetElementDelim);
-
 	}
-
 }
 
 void DICOMViewer::iterateItem(DcmItem * item)
@@ -231,7 +214,6 @@ void DICOMViewer::iterateItem(DcmItem * item)
 	{
 		DcmElement* element = item->getElement(i);
 		DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, element->getGTag()), OFstatic_cast(Uint16, element->getETag()));
-
 
 		DcmTag tagName = DcmTag(tagKey);
 		DcmVR vr = DcmVR(element->getVR());
@@ -246,7 +228,6 @@ void DICOMViewer::iterateItem(DcmItem * item)
 			str.append(" ");
 		}
 
-
 		DcmWidgetElement widgetElement = DcmWidgetElement(
 			QString::fromStdString(tagKey.toString().c_str()),
 			QString::fromStdString(vr.getVRName()),
@@ -256,7 +237,6 @@ void DICOMViewer::iterateItem(DcmItem * item)
 			QString::fromStdString(str));
 
 		this->nestedElements.push_back(widgetElement);
-
 		getNestedSequences(tagKey);
 	}
 }
@@ -273,32 +253,36 @@ void DICOMViewer::clearTable()
 		{
 			ui.tableWidget->removeRow(i);
 		}
+		ui.lineEdit->clear();
+		this->setWindowTitle("Viewer");
 	}
 }
 
 void DICOMViewer::alertFailed(std::string message)
 {
 	QMessageBox* messageBox = new QMessageBox();
-	messageBox->setText(QString::fromStdString(message + '\n'));
+	messageBox->setText(QString::fromStdString(message));
 	messageBox->exec();
 }
 
 void DICOMViewer::findText()
 {
 	QString text = ui.lineEdit->text();
-
 	if (!text.isEmpty())
 	{
-		std::vector<DcmWidgetElement> result;
-		for (DcmWidgetElement element : elements)
+		if (elements.size())
 		{
-			if (element.checkIfContains(text))
+			std::vector<DcmWidgetElement> result;
+			for (DcmWidgetElement element : elements)
 			{
-				result.push_back(element);
+				if (element.checkIfContains(text))
+				{
+					result.push_back(element);
+				}
 			}
+			repopulate(result);
+			ui.tableWidget->scrollToTop();
 		}
-		repopulate(result);
-		ui.tableWidget->scrollToTop();
 	}
 	else
 	{
