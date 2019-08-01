@@ -29,6 +29,5 @@ class DcmWidgetElement
 		void setDepth(const int& depth);
 		void incrementDepth();
 		void setItemTag(const QString& final);
-
 		bool checkIfContains(QString str);
 };

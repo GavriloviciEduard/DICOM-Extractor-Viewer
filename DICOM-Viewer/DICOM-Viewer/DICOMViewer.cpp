@@ -1,9 +1,6 @@
 #include "DICOMViewer.h"
-#include <fstream>
 
-std::ofstream fout("file.out");
-
-
+#define SPACE "  "
 
 DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 {
@@ -15,7 +12,6 @@ DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 	ui.tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 }
-
 
 void DICOMViewer::fileTriggered(QAction* qaction)
 {
@@ -30,21 +26,21 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 			if (file.loadFile(fileName.toStdString().c_str()).good())
 			{
 				ui.tableWidget->scrollToTop();
-				clearTable();
-				extractData(file);
+				this->clearTable();
+				this->extractData(file);
 				ui.tableWidget->resizeColumnsToContents();
 				this->setWindowTitle("Viewer - " + fileName);
 			}
 			else
 			{
-				alertFailed("Failed to open file!");
+				this->alertFailed("Failed to open file!");
 			}
 		}
 	}
 
 	else if(option == "Close")
 	{
-		clearTable();
+		this->clearTable();
 	}
 }
 
@@ -55,92 +51,51 @@ void DICOMViewer::extractData(DcmFileFormat file)
 
 	for (int i = 0; i < metaInfo->card(); i++)
 	{
-		insertInTable(metaInfo->getElement(i));	
+		this->insertInTable(metaInfo->getElement(i));
 	}
 
 	for (int i = 0; i < dataSet->card(); i++)
 	{
-		insertInTable(dataSet->getElement(i));
+		this->insertInTable(dataSet->getElement(i));
 	}
 }
 
 void DICOMViewer::insertInTable(DcmElement* element)
 {
-	DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, element->getGTag()), OFstatic_cast(Uint16, element->getETag()));
-	DcmTag tagName = DcmTag(tagKey);
-	DcmVR vr = DcmVR(element->getVR());
-	std::string str;
-
-	for (int i = 0; i < 10; i++)
-	{
-		OFString value;
-		element->getOFString(value, i, false);
-		str.append(value.c_str());
-		str.append(" ");
-	}
-	
-	depthRE = 0;
-	getNestedSequences(tagKey);
+		
+	this->depthRE = 0;
+	this->getNestedSequences(DcmTagKey(
+		OFstatic_cast(Uint16, element->getGTag()), 
+		OFstatic_cast(Uint16, element->getETag())));
 
 	if (this->nestedElements.size())
 	{
 		for (auto element : this->nestedElements)
 		{
-			DcmWidgetElement widgetElement = DcmWidgetElement(
-				element.getItemTag(),
-				element.getItemVR(),
-				element.getItemVM(),
-				element.getItemLength(),
-				element.getItemDescription(),
-				element.getItemValue());
+			this->indent(element, element.getDepth());
 
+			this->insert(element, globalIndex);
 
-			indent(widgetElement, element.getDepth());
+			DcmWidgetElement copyElement = DcmWidgetElement(element);
+			this->elements.push_back(copyElement);
+			this->globalIndex++;
 
-			ui.tableWidget->insertRow(globalIndex);
-			ui.tableWidget->setItem(globalIndex, 0, new QTableWidgetItem(widgetElement.getItemTag()));
-			ui.tableWidget->setItem(globalIndex, 1, new QTableWidgetItem(widgetElement.getItemVR()));
-			ui.tableWidget->setItem(globalIndex, 2, new QTableWidgetItem(widgetElement.getItemVM()));
-			ui.tableWidget->setItem(globalIndex, 3, new QTableWidgetItem(widgetElement.getItemLength()));
-			ui.tableWidget->setItem(globalIndex, 4, new QTableWidgetItem(widgetElement.getItemDescription()));
-			ui.tableWidget->setItem(globalIndex, 5, new QTableWidgetItem(widgetElement.getItemValue()));
-
-			DcmWidgetElement copyElement = DcmWidgetElement(widgetElement);
-			elements.push_back(copyElement);
-			globalIndex++;
-
-			fout <<widgetElement.toString() << " " << "Depth: " << element.getDepth() << '\n';
 		}
 
-		fout << '\n' << '\n';
 		this->nestedElements.clear();
 	}
 	
 	else
 	{
-		DcmWidgetElement widgetElement = DcmWidgetElement(
-			QString::fromStdString(tagKey.toString().c_str()),
-			QString::fromStdString(vr.getVRName()),
-			QString::fromStdString(std::to_string(element->getVM())),
-			QString::fromStdString(std::to_string(element->getLength())),
-			tagName.getTagName(),
-			QString::fromStdString(str));
+		DcmWidgetElement widgetElement = createElement(element,nullptr,nullptr);
 
-		ui.tableWidget->insertRow(globalIndex);
-		ui.tableWidget->setItem(globalIndex, 0, new QTableWidgetItem(widgetElement.getItemTag()));
-		ui.tableWidget->setItem(globalIndex, 1, new QTableWidgetItem(widgetElement.getItemVR()));
-		ui.tableWidget->setItem(globalIndex, 2, new QTableWidgetItem(widgetElement.getItemVM()));
-		ui.tableWidget->setItem(globalIndex, 3, new QTableWidgetItem(widgetElement.getItemLength()));
-		ui.tableWidget->setItem(globalIndex, 4, new QTableWidgetItem(widgetElement.getItemDescription()));
-		ui.tableWidget->setItem(globalIndex, 5, new QTableWidgetItem(widgetElement.getItemValue()));
+		this->insert(widgetElement, globalIndex);
 
 		DcmWidgetElement copyElement = DcmWidgetElement(widgetElement);
-		elements.push_back(copyElement);
+		this->elements.push_back(copyElement);
 
-		globalIndex++;
+		this->globalIndex++;
 	}
-
-	
 }
 
 void DICOMViewer::repopulate(std::vector<DcmWidgetElement> source)
@@ -155,13 +110,7 @@ void DICOMViewer::repopulate(std::vector<DcmWidgetElement> source)
 	{
 		DcmWidgetElement element = DcmWidgetElement(source[i]);
 
-		ui.tableWidget->insertRow(i);
-		ui.tableWidget->setItem(i, 0, new QTableWidgetItem(element.getItemTag()));
-		ui.tableWidget->setItem(i, 1, new QTableWidgetItem(element.getItemVR()));
-		ui.tableWidget->setItem(i, 2, new QTableWidgetItem(element.getItemVM()));
-		ui.tableWidget->setItem(i, 3, new QTableWidgetItem(element.getItemLength()));
-		ui.tableWidget->setItem(i, 4, new QTableWidgetItem(element.getItemDescription()));
-		ui.tableWidget->setItem(i, 5, new QTableWidgetItem(element.getItemValue()));
+		this->insert(element, i);
 	}
 }
 
@@ -169,70 +118,48 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 {
 	DcmSequenceOfItems *sequence = NULL;
 	OFCondition cond = file.getDataset()->findAndGetSequence(tag, sequence, true);
-	
 
 	if (cond.good())
 	{
+		DcmWidgetElement widgetElement1 = createElement(nullptr,sequence,nullptr);
 
-		DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, sequence->getGTag()), OFstatic_cast(Uint16, sequence->getETag()));
-		DcmTag tagName = DcmTag(tagKey);
-		DcmVR vr = DcmVR(sequence->getVR());
-
-		std::string str;
-		for (int i = 0; i < 10; i++)
-		{
-			OFString value;
-			sequence->getOFString(value, i, false);
-			str.append(value.c_str());
-			str.append(" ");
-		}
-
-		DcmWidgetElement widgetElement1 = DcmWidgetElement(
-			QString::fromStdString(tagKey.toString().c_str()),
-			QString::fromStdString(vr.getVRName()),
-			QString::fromStdString(std::to_string(sequence->getVM())),
-			QString::fromStdString(std::to_string(sequence->getLength())),
-			tagName.getTagName(),
-			QString::fromStdString(str));
-
-		widgetElement1.setDepth(depthRE);
+		widgetElement1.setDepth(this->depthRE);
 		
 		this->nestedElements.push_back(widgetElement1);
 
-		depthRE++;
+		this->depthRE++;
 
 		for (int i = 0; i < sequence->card(); i++)
 		{
-			DcmItem *item = sequence->getItem(i);
-			DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, item->getGTag()), OFstatic_cast(Uint16, item->getETag()));
+			DcmWidgetElement widgetElement2 = createElement(nullptr,nullptr, sequence->getItem(i));
 
-			DcmTag tagName = DcmTag(tagKey);
-			DcmVR vr = DcmVR(item->getVR());
-
-			DcmWidgetElement widgetElement2 = DcmWidgetElement(
-				QString::fromStdString(tagKey.toString().c_str()),
-				QString::fromStdString(vr.getVRName()),
-				QString::fromStdString(std::to_string(item->getVM())),
-				QString::fromStdString(std::to_string(item->getLength())),
-				tagName.getTagName(),
-				QString::fromStdString(""));
-
-			widgetElement2.setDepth(depthRE);
+			widgetElement2.setDepth(this->depthRE);
 
 			this->nestedElements.push_back(widgetElement2);
 			
 
-			iterateItem(item,depthRE);
+			this->iterateItem(sequence->getItem(i), this->depthRE);
 
-			DcmWidgetElement widgetElementDelim = DcmWidgetElement(QString("(fffe,e00d)"), QString("??"), QString("0"), QString("0"), QString("ItemDelimitationItem"), QString(""));
-			depthRE--;
-			widgetElementDelim.setDepth(depthRE);
+			DcmWidgetElement widgetElementDelim = DcmWidgetElement(
+				QString("(fffe,e00d)"), 
+				QString("??"), QString("0"),
+				QString("0"), 
+				QString("ItemDelimitationItem"), 
+				QString(""));
+			this->depthRE--;
+			widgetElementDelim.setDepth(this->depthRE);
 			this->nestedElements.push_back(widgetElementDelim);
 		}
 
-		DcmWidgetElement widgetElementDelim = DcmWidgetElement(QString("(fffe,e0dd)"), QString("??"), QString("0"), QString("0"), QString("SequenceDelimitationItem"), QString(""));
-		depthRE--;
-		widgetElementDelim.setDepth(depthRE);
+		DcmWidgetElement widgetElementDelim = DcmWidgetElement(
+			QString("(fffe,e0dd)"), 
+			QString("??"), 
+			QString("0"), 
+			QString("0"), 
+			QString("SequenceDelimitationItem"), 
+			QString(""));
+		this->depthRE--;
+		widgetElementDelim.setDepth(this->depthRE);
 
 		this->nestedElements.push_back(widgetElementDelim);
 	}
@@ -240,17 +167,67 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag)
 
 void DICOMViewer::iterateItem(DcmItem * item,int& depth)
 {
-
 	depth++;
-
 	for (int i = 0; i < item->getNumberOfValues(); i++)
 	{
-		DcmElement* element = item->getElement(i);
-		DcmTagKey tagKey = DcmTagKey(OFstatic_cast(Uint16, element->getGTag()), OFstatic_cast(Uint16, element->getETag()));
+		DcmWidgetElement widgetElement = createElement(item->getElement(i),nullptr,nullptr);
+		if (widgetElement.getItemVR() != "SQ")
+		{
+			widgetElement.setDepth(depth);
+			this->nestedElements.push_back(widgetElement);
+		}
 
+		this->getNestedSequences(DcmTagKey(
+			OFstatic_cast(Uint16, item->getElement(i)->getGTag()), 
+			OFstatic_cast(Uint16, item->getElement(i)->getETag())));
+	}
+}
+
+void DICOMViewer::clearTable()
+{
+	if (ui.tableWidget->rowCount())
+	{
+		this->nestedElements.clear();
+		this->elements.clear();
+		this->globalIndex = 0;
+
+		for (int i = ui.tableWidget->rowCount(); i >= 0; i--)
+		{
+			ui.tableWidget->removeRow(i);
+		}
+
+		ui.lineEdit->clear();
+		this->setWindowTitle("Viewer");
+	}
+}
+
+void DICOMViewer::alertFailed(std::string message)
+{
+	QMessageBox* messageBox = new QMessageBox();
+	messageBox->setText(QString::fromStdString(message));
+	messageBox->exec();
+}
+
+void DICOMViewer::indent(DcmWidgetElement & element, int depth)
+{
+	QString str = element.getItemTag();
+	while (depth--)
+	{
+		str.insert(0, SPACE);
+	}
+
+	element.setItemTag(str);
+}
+
+DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfItems* sequence, DcmItem* item)
+{
+	if (element)
+	{
+		DcmTagKey tagKey = DcmTagKey(
+			OFstatic_cast(Uint16, element->getGTag()), 
+			OFstatic_cast(Uint16, element->getETag()));
 		DcmTag tagName = DcmTag(tagKey);
 		DcmVR vr = DcmVR(element->getVR());
-
 		std::string str;
 
 		for (int i = 0; i < 10; i++)
@@ -268,53 +245,65 @@ void DICOMViewer::iterateItem(DcmItem * item,int& depth)
 			QString::fromStdString(std::to_string(element->getLength())),
 			tagName.getTagName(),
 			QString::fromStdString(str));
-	
 
-		if (widgetElement.getItemVR() != "SQ")
+		return widgetElement;
+	}
+	else if (sequence)
+	{
+		DcmTagKey tagKey = DcmTagKey(
+			OFstatic_cast(Uint16, sequence->getGTag()), 
+			OFstatic_cast(Uint16, sequence->getETag()));
+		DcmTag tagName = DcmTag(tagKey);
+		DcmVR vr = DcmVR(sequence->getVR());
+		std::string str;
+
+		for (int i = 0; i < 10; i++)
 		{
-			widgetElement.setDepth(depth);
-			this->nestedElements.push_back(widgetElement);
+			OFString value;
+			sequence->getOFString(value, i, false);
+			str.append(value.c_str());
+			str.append(" ");
 		}
 
-		getNestedSequences(tagKey);
-	}
-}
+		DcmWidgetElement widgetElement = DcmWidgetElement(
+			QString::fromStdString(tagKey.toString().c_str()),
+			QString::fromStdString(vr.getVRName()),
+			QString::fromStdString(std::to_string(sequence->getVM())),
+			QString::fromStdString(std::to_string(sequence->getLength())),
+			tagName.getTagName(),
+			QString::fromStdString(str));
 
-void DICOMViewer::clearTable()
-{
-	if (ui.tableWidget->rowCount())
+		return widgetElement;
+	}
+	else if (item)
 	{
-		this->nestedElements.clear();
-		this->elements.clear();
-		globalIndex = 0;
+		DcmTagKey tagKey = DcmTagKey(
+			OFstatic_cast(Uint16, item->getGTag()),
+			OFstatic_cast(Uint16, item->getETag()));
+		DcmTag tagName = DcmTag(tagKey);
+		DcmVR vr = DcmVR(item->getVR());
 
-		for (int i = ui.tableWidget->rowCount(); i >= 0; i--)
-		{
-			ui.tableWidget->removeRow(i);
-		}
-		ui.lineEdit->clear();
-		this->setWindowTitle("Viewer");
+		DcmWidgetElement widgetElement = DcmWidgetElement(
+			QString::fromStdString(tagKey.toString().c_str()),
+			QString::fromStdString(vr.getVRName()),
+			QString::fromStdString(std::to_string(item->getVM())),
+			QString::fromStdString(std::to_string(item->getLength())),
+			tagName.getTagName(),
+			QString::fromStdString(""));
+
+		return widgetElement;
 	}
 }
 
-void DICOMViewer::alertFailed(std::string message)
+void DICOMViewer::insert(DcmWidgetElement element, int &index)
 {
-	QMessageBox* messageBox = new QMessageBox();
-	messageBox->setText(QString::fromStdString(message));
-	messageBox->exec();
-}
-
-void DICOMViewer::indent(DcmWidgetElement & element, int depth)
-{
-	QString str = element.getItemTag();
-
-	while (depth--)
-	{
-		str.insert(0, "  ");//2 SPACES DEFAULT
-	}
-
-	element.setItemTag(str);
-
+	ui.tableWidget->insertRow(index);
+	ui.tableWidget->setItem(index, 0, new QTableWidgetItem(element.getItemTag()));
+	ui.tableWidget->setItem(index, 1, new QTableWidgetItem(element.getItemVR()));
+	ui.tableWidget->setItem(index, 2, new QTableWidgetItem(element.getItemVM()));
+	ui.tableWidget->setItem(index, 3, new QTableWidgetItem(element.getItemLength()));
+	ui.tableWidget->setItem(index, 4, new QTableWidgetItem(element.getItemDescription()));
+	ui.tableWidget->setItem(index, 5, new QTableWidgetItem(element.getItemValue()));
 }
 
 void DICOMViewer::findText()
@@ -322,10 +311,10 @@ void DICOMViewer::findText()
 	QString text = ui.lineEdit->text();
 	if (!text.isEmpty())
 	{
-		if (elements.size())
+		if (this->elements.size())
 		{
 			std::vector<DcmWidgetElement> result;
-			for (DcmWidgetElement element : elements)
+			for (DcmWidgetElement element : this->elements)
 			{
 				if (element.checkIfContains(text))
 				{
@@ -338,11 +327,11 @@ void DICOMViewer::findText()
 	}
 	else
 	{
-		repopulate(elements);
+		repopulate(this->elements);
 	}
 }
 
 void DICOMViewer::closeButtonClicked()
 {
-	close();
+	this->close();
 }

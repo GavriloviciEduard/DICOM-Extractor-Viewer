@@ -24,8 +24,6 @@ class DICOMViewer : public QMainWindow
 		std::vector<DcmWidgetElement> nestedElements;
 		int globalIndex = 0;
 		int depthRE = 0;
-		
-		
 
 	private:
 		void insertInTable(DcmElement* element);
@@ -36,7 +34,9 @@ class DICOMViewer : public QMainWindow
 		void clearTable();
 		void alertFailed(std::string message);
 		void indent(DcmWidgetElement& element, int depth);
-	
+		DcmWidgetElement createElement(DcmElement* element = nullptr, DcmSequenceOfItems* sequence = nullptr, DcmItem* item = nullptr);
+		void insert(DcmWidgetElement element, int &index);
+
 	private slots:
 		void fileTriggered(QAction* qaction);
 		void closeButtonClicked();
