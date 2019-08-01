@@ -1,10 +1,5 @@
 #include "DcmWidgetElement.h"
 
-DcmWidgetElement::DcmWidgetElement()
-{
-
-}
-
 DcmWidgetElement::DcmWidgetElement(const QString &itemTag, const QString &itemVR, const QString &itemVM, const QString &itemLength, const QString &itemDescription, const QString &itemValue)
 {
 	this->itemTag = itemTag;
@@ -15,7 +10,6 @@ DcmWidgetElement::DcmWidgetElement(const QString &itemTag, const QString &itemVR
 	this->itemValue = itemValue;
 }
 
-DcmWidgetElement::~DcmWidgetElement() = default;
 
 QString DcmWidgetElement::getItemTag()
 {

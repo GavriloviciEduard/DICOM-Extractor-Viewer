@@ -10,47 +10,36 @@ DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 	ui.tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-void DICOMViewer::closeButtonClicked()
-{
-	this->close();
-}
 
 void DICOMViewer::fileTriggered(QAction* qaction)
 {
 	QString option = qaction->text();
+
+
 	if (option == "Open")
 	{
 		QString fileName = QFileDialog::getOpenFileName(this);
+
 		if (!fileName.isEmpty())
 		{
 			if (file.loadFile(fileName.toStdString().c_str()).good())
 			{
-				if (ui.tableWidget->rowCount())
-				{
-					this->nestedElements.clear();
-
-					for (int i = ui.tableWidget->rowCount(); i >= 0; i--)
-					{
-						ui.tableWidget->removeRow(i);
-					}
-				}
+				clearTable();
 				extractData(file);
 				ui.tableWidget->resizeColumnsToContents();
 			}
 
 			else
 			{
-				QMessageBox* messageBox = new QMessageBox();
-				messageBox->setText("Failed to open DICOM file!\n");
-				messageBox->exec();
+				alertFailed();
 			}
 		}
 	}
+
 	else
 	{
-		
+			//TODO
 	}
-
 	
 }
 
@@ -150,6 +139,7 @@ void DICOMViewer::repopulate(std::vector<DcmWidgetElement> source)
 	list.append("Description");
 	list.append("Value");
 	ui.tableWidget->setHorizontalHeaderLabels(list);
+
 	for (int i = 0; i < source.size(); i++)
 	{
 		DcmWidgetElement element = DcmWidgetElement(source[i]);
@@ -268,6 +258,26 @@ void DICOMViewer::iterateItem(DcmItem * item)
 	}
 }
 
+void DICOMViewer::clearTable()
+{
+	if (ui.tableWidget->rowCount())
+	{
+		this->nestedElements.clear();
+
+		for (int i = ui.tableWidget->rowCount(); i >= 0; i--)
+		{
+			ui.tableWidget->removeRow(i);
+		}
+	}
+}
+
+void DICOMViewer::alertFailed()
+{
+	QMessageBox* messageBox = new QMessageBox();
+	messageBox->setText("Failed to open DICOM file!\n");
+	messageBox->exec();
+}
+
 void DICOMViewer::findText()
 {
 	QString text = ui.lineEdit->text();
@@ -289,4 +299,9 @@ void DICOMViewer::findText()
 	{
 		repopulate(elements);
 	}
+}
+
+void DICOMViewer::closeButtonClicked()
+{
+	close();
 }

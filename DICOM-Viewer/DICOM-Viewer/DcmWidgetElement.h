@@ -4,26 +4,26 @@
 
 class DcmWidgetElement
 {
-private:
-	QString itemTag;
-	QString itemVR;
-	QString itemVM;
-	QString itemLength;
-	QString itemDescription;
-	QString itemValue;
+	private:
+		QString itemTag;
+		QString itemVR;
+		QString itemVM;
+		QString itemLength;
+		QString itemDescription;
+		QString itemValue;
 
-public:
-	DcmWidgetElement();
-	DcmWidgetElement(const QString &itemTag, const QString &itemVR, const QString &itemVM, const QString &itemLength, const QString &itemDescription, const QString &itemValue);
-	~DcmWidgetElement();
+	public:
+		DcmWidgetElement() { }
+		DcmWidgetElement(const QString &itemTag, const QString &itemVR, const QString &itemVM, const QString &itemLength, const QString &itemDescription, const QString &itemValue);
+		~DcmWidgetElement() = default;
 
-	QString getItemTag();
-	QString getItemVR();
-	QString getItemVM();
-	QString getItemLength();
-	QString getItemDescription();
-	QString getItemValue();
-	std::string toString();
+		QString getItemTag();
+		QString getItemVR();
+		QString getItemVM();
+		QString getItemLength();
+		QString getItemDescription();
+		QString getItemValue();
+		std::string toString();
 
-	bool checkIfContains(QString str);
+		bool checkIfContains(QString str);
 };

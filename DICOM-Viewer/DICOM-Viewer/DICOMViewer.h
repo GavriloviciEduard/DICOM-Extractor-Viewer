@@ -8,9 +8,7 @@
 #include "dcmtk/dcmdata/dcmetinf.h"
 #include "dcmtk/dcmdata/dcvr.h"
 #include "dcmtk/dcmdata/dctag.h"
-
 #include "DcmWidgetElement.h"
-#include <algorithm>
 
 class DICOMViewer : public QMainWindow
 {
@@ -25,13 +23,16 @@ class DICOMViewer : public QMainWindow
 		std::vector<DcmWidgetElement> elements;
 		std::vector<DcmWidgetElement> nestedElements;
 		int globalIndex = 0;
+		
 
-	protected:
+	private:
 		void insertInTable(DcmElement* element);
 		void extractData(DcmFileFormat file);
 		void repopulate(std::vector<DcmWidgetElement> source);
 		void getNestedSequences(DcmTagKey tag);
 		void iterateItem(DcmItem *item);
+		void clearTable();
+		void alertFailed();
 	
 	private slots:
 		void fileTriggered(QAction* qaction);
