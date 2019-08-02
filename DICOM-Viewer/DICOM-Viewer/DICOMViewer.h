@@ -39,9 +39,13 @@ class DICOMViewer : public QMainWindow
 			DcmSequenceOfItems* sequence = nullptr, 
 			DcmItem* item = nullptr);
 		void insert(DcmWidgetElement element, int &index);
+		int getFileSize(std::string fileName);
 
 	private slots:
 		void fileTriggered(QAction* qaction);
 		void closeButtonClicked();
+		void editClicked();
+		void deleteClicked();
+		void insertClicked();
 		void findText();
 };

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>699</width>
-    <height>453</height>
+    <width>719</width>
+    <height>514</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -71,19 +71,6 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -97,7 +84,52 @@
        </spacer>
       </item>
       <item>
-       <spacer name="horizontalSpacer_2">
+       <widget class="QPushButton" name="buttonEdit">
+        <property name="text">
+         <string>Edit Tag</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonDelete">
+        <property name="text">
+         <string>Delete Tag</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonInsert">
+        <property name="text">
+         <string>Insert Tag</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Size: </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -125,7 +157,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>699</width>
+     <width>719</width>
      <height>21</height>
     </rect>
    </property>
@@ -135,6 +167,7 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionClose"/>
+    <addaction name="actionCompare"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -146,7 +179,6 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
@@ -158,6 +190,11 @@
   <action name="actionClose">
    <property name="text">
     <string>Close</string>
+   </property>
+  </action>
+  <action name="actionCompare">
+   <property name="text">
+    <string>Compare</string>
    </property>
   </action>
  </widget>
@@ -189,11 +226,11 @@
    <slot>closeButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>647</x>
-     <y>412</y>
+     <x>636</x>
+     <y>481</y>
     </hint>
     <hint type="destinationlabel">
-     <x>547</x>
+     <x>527</x>
      <y>417</y>
     </hint>
    </hints>
@@ -205,12 +242,44 @@
    <slot>findText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>103</x>
-     <y>411</y>
+     <x>113</x>
+     <y>451</y>
     </hint>
     <hint type="destinationlabel">
      <x>265</x>
      <y>418</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonEdit</sender>
+   <signal>clicked()</signal>
+   <receiver>DICOMViewerClass</receiver>
+   <slot>editClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>450</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>277</x>
+     <y>466</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonDelete</sender>
+   <signal>clicked()</signal>
+   <receiver>DICOMViewerClass</receiver>
+   <slot>deleteClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>555</x>
+     <y>450</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>468</y>
     </hint>
    </hints>
   </connection>
@@ -220,5 +289,9 @@
   <slot>fileHovered(QAction*)</slot>
   <slot>closeButtonClicked()</slot>
   <slot>findText()</slot>
+  <slot>editClicked()</slot>
+  <slot>deleteClicked()</slot>
+  <slot>insertClicked()</slot>
+  <slot>compareTriggered(QAction*)</slot>
  </slots>
 </ui>

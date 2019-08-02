@@ -1,4 +1,5 @@
 #include "DICOMViewer.h"
+#include <fstream>
 
 #define SPACE "  "
 
@@ -30,6 +31,7 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 				this->extractData(file);
 				ui.tableWidget->resizeColumnsToContents();
 				this->setWindowTitle("Viewer - " + fileName);
+				ui.label->setText("Size: " + QString::fromStdString(std::to_string(getFileSize(fileName.toStdString())) + " KB"));
 			}
 			else
 			{
@@ -41,6 +43,10 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 	else if(option == "Close")
 	{
 		this->clearTable();
+	}
+	else if (option == "Compare")
+	{
+
 	}
 }
 
@@ -311,6 +317,14 @@ void DICOMViewer::insert(DcmWidgetElement element, int &index)
 	ui.tableWidget->setItem(index, 5, new QTableWidgetItem(element.getItemValue()));
 }
 
+int DICOMViewer::getFileSize(std::string fileName)
+{
+	std::ifstream in_file(fileName, std::ios::binary | std::ios::ate);
+	int size = in_file.tellg() / 1024;
+	in_file.close();
+	return size;
+}
+
 void DICOMViewer::findText()
 {
 	QString text = ui.lineEdit->text();
@@ -339,4 +353,16 @@ void DICOMViewer::findText()
 void DICOMViewer::closeButtonClicked()
 {
 	this->close();
+}
+
+void DICOMViewer::editClicked()
+{
+}
+
+void DICOMViewer::deleteClicked()
+{
+}
+
+void DICOMViewer::insertClicked()
+{
 }
