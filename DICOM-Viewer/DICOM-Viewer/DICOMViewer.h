@@ -34,7 +34,10 @@ class DICOMViewer : public QMainWindow
 		void clearTable();
 		void alertFailed(std::string message);
 		void indent(DcmWidgetElement& element, int depth);
-		DcmWidgetElement createElement(DcmElement* element = nullptr, DcmSequenceOfItems* sequence = nullptr, DcmItem* item = nullptr);
+		DcmWidgetElement createElement(
+			DcmElement* element = nullptr, 
+			DcmSequenceOfItems* sequence = nullptr, 
+			DcmItem* item = nullptr);
 		void insert(DcmWidgetElement element, int &index);
 
 	private slots:

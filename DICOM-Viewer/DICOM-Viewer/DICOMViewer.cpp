@@ -204,8 +204,10 @@ void DICOMViewer::clearTable()
 void DICOMViewer::alertFailed(std::string message)
 {
 	QMessageBox* messageBox = new QMessageBox();
+	messageBox->setIcon(QMessageBox::Warning);
 	messageBox->setText(QString::fromStdString(message));
 	messageBox->exec();
+	delete messageBox;
 }
 
 void DICOMViewer::indent(DcmWidgetElement & element, int depth)
@@ -219,7 +221,10 @@ void DICOMViewer::indent(DcmWidgetElement & element, int depth)
 	element.setItemTag(str);
 }
 
-DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfItems* sequence, DcmItem* item)
+DcmWidgetElement DICOMViewer::createElement(
+	DcmElement* element, 
+	DcmSequenceOfItems* sequence, 
+	DcmItem* item)
 {
 	if (element)
 	{
