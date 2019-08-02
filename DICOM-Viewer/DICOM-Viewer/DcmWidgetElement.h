@@ -30,4 +30,6 @@ class DcmWidgetElement
 		void incrementDepth();
 		void setItemTag(const QString& final);
 		bool checkIfContains(QString str);
+
+		bool operator==(DcmWidgetElement &element);
 };

@@ -48,6 +48,18 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 	{
 
 	}
+	else if (option == "Refresh")
+	{
+		repopulate(elements);
+	}
+
+	else if (option == "Save")
+	{
+		if (!file.saveFile("saved.dcm").good())
+		{
+			alertFailed("Failed to save!");
+		}
+	}
 }
 
 void DICOMViewer::extractData(DcmFileFormat file)
@@ -68,10 +80,9 @@ void DICOMViewer::extractData(DcmFileFormat file)
 
 void DICOMViewer::insertInTable(DcmElement* element)
 {
-		
 	this->depthRE = 0;
 	this->getNestedSequences(DcmTagKey(
-		OFstatic_cast(Uint16, element->getGTag()), 
+		OFstatic_cast(Uint16, element->getGTag()),
 		OFstatic_cast(Uint16, element->getETag())));
 
 	if (this->nestedElements.size())
@@ -325,6 +336,30 @@ int DICOMViewer::getFileSize(std::string fileName)
 	return size;
 }
 
+bool DICOMViewer::deleteElementFromFile(DcmWidgetElement element)
+{
+	bool deleted = false;
+	DcmDataset* dataSet = file.getDataset();
+	for (int i = 0; i < dataSet->card(); i++)
+	{
+		DcmWidgetElement el = createElement(dataSet->getElement(i), nullptr, nullptr);
+		if (element == el)
+		{
+			//alertFailed("Found in dataSet!");
+			if (!dataSet->findAndDeleteElement(dataSet->getElement(i)->getTag().getBaseTag()).good())
+			{
+				alertFailed("Failed to delete!");
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+	}
+	return deleted;
+}
+
 void DICOMViewer::findText()
 {
 	QString text = ui.lineEdit->text();
@@ -361,8 +396,40 @@ void DICOMViewer::editClicked()
 
 void DICOMViewer::deleteClicked()
 {
+	QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
+	DcmWidgetElement element = DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
+
+	if (deleteElementFromFile(element))
+	{
+		for (int i = 0; i < elements.size(); i++)
+		{
+			if (elements[i] == element)
+			{
+				for (int j = i; j < elements.size() - 1; j++)
+				{
+					elements[j] = elements[j + 1];
+				}
+				elements.pop_back();
+			}
+		}
+
+		repopulate(elements);
+	}
 }
 
 void DICOMViewer::insertClicked()
 {
+	/*for (int i = 0; i < file.getDataset()->card(); i++)
+	{
+		DcmSequenceOfItems* sequence;
+		if (file.getDataset()->findAndGetSequence(file.getDataset()->getElement(i)->getTag().getBaseTag(), sequence, true).good())
+		{
+			for (int j = 0; j < sequence->card(); j++)
+			{
+				DcmItem* item = sequence->getItem(j);
+				int card = item->card();
+				std::cout << "";
+			}
+		}
+	}*/
 }

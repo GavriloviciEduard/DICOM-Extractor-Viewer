@@ -71,3 +71,12 @@ bool DcmWidgetElement::checkIfContains(QString str)
 {
 	return this->itemTag.toUpper().contains(str.toUpper()) || this->itemVM.toUpper().contains(str.toUpper()) || this->itemVR.toUpper().contains(str.toUpper()) || this->itemLength.toUpper().contains(str.toUpper()) || this->itemDescription.toUpper().contains(str.toUpper()) || this->itemValue.toUpper().contains(str.toUpper());
 }
+
+bool DcmWidgetElement::operator==(DcmWidgetElement & element)
+{
+	return this->getItemTag() == element.getItemTag() &&
+		this->getItemVM() == element.getItemVM() &&
+		this->getItemVR() == element.getItemVR() &&
+		this->getItemLength() == element.getItemLength() &&
+		this->getItemValue() == element.getItemValue();
+}

@@ -40,6 +40,7 @@ class DICOMViewer : public QMainWindow
 			DcmItem* item = nullptr);
 		void insert(DcmWidgetElement element, int &index);
 		int getFileSize(std::string fileName);
+		bool deleteElementFromFile(DcmWidgetElement element);
 
 	private slots:
 		void fileTriggered(QAction* qaction);
