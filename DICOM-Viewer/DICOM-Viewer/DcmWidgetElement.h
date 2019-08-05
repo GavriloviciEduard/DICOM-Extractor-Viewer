@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtWidgets>
+#include <dcmtk/dcmdata/dcdeftag.h>
 
 class DcmWidgetElement
 {
@@ -30,6 +31,9 @@ class DcmWidgetElement
 		void incrementDepth();
 		void setItemTag(const QString& final);
 		bool checkIfContains(QString str);
+		DcmTagKey extractTagKey();
+
+		static int hexToDecimal(const char* hex);
 
 		bool operator==(DcmWidgetElement &element);
 };

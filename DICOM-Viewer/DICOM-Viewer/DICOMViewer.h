@@ -39,8 +39,12 @@ class DICOMViewer : public QMainWindow
 			DcmSequenceOfItems* sequence = nullptr, 
 			DcmItem* item = nullptr);
 		void insert(DcmWidgetElement element, int &index);
-		int getFileSize(std::string fileName);
-		bool deleteElementFromFile(DcmWidgetElement element);
+		double getFileSize(std::string fileName);
+
+		void  getTagKeyOfSequence(DcmTagKey key, int row, DcmTagKey* returnKey, int* numberInSequence);
+
+		bool deleteElementFromFile(DcmWidgetElement element, int row);
+		bool canBeDeleted(DcmWidgetElement element);
 
 	private slots:
 		void fileTriggered(QAction* qaction);
