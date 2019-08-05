@@ -116,6 +116,7 @@
   <ItemGroup>
     <ClCompile Include="DcmWidgetElement.cpp" />
     <ClCompile Include="DICOMViewer.cpp" />
+    <ClCompile Include="EditDialogSimple.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -123,12 +124,17 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="DICOMViewer.ui" />
+    <QtUic Include="EditDialogSimple.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="DICOMViewer.qrc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DcmWidgetElement.h" />
+    <QtMoc Include="EditDialogSimple.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\..\library\Debug\DCMTK\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\..\library\Debug\DCMTK\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

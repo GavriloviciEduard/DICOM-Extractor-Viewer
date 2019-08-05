@@ -82,6 +82,16 @@ DcmTagKey DcmWidgetElement::extractTagKey()
 	return DcmTagKey(hexToDecimal(list[0].toStdString().c_str()), hexToDecimal(list[1].toStdString().c_str()));
 }
 
+bool DcmWidgetElement::isInSequence()
+{
+	QString str = this->getItemTag().replace(" ", "");
+	if (str != this->getItemTag())
+	{
+		return true;
+	}
+	return false;
+}
+
 int DcmWidgetElement::hexToDecimal(const char * hex)
 {
 	int length = strlen(hex);

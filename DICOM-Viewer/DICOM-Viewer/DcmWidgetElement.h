@@ -33,6 +33,8 @@ class DcmWidgetElement
 		bool checkIfContains(QString str);
 		DcmTagKey extractTagKey();
 
+		bool isInSequence();
+
 		static int hexToDecimal(const char* hex);
 
 		bool operator==(DcmWidgetElement &element);
