@@ -46,9 +46,10 @@ class DICOMViewer : public QMainWindow
 
 		bool deleteElementFromFile(DcmWidgetElement element, int row);
 		bool canBeDeleted(DcmWidgetElement element);
-		bool modifyValue(DcmTagKey key, QString value, bool isInSequence = false);
+		bool modifyValue(DcmWidgetElement element, int row, QString value);
 
 		void createSimpleEditDialog(DcmWidgetElement element);
+		void generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements);
 
 	private slots:
 		void fileTriggered(QAction* qaction);

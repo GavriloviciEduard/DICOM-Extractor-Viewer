@@ -82,14 +82,18 @@ DcmTagKey DcmWidgetElement::extractTagKey()
 	return DcmTagKey(hexToDecimal(list[0].toStdString().c_str()), hexToDecimal(list[1].toStdString().c_str()));
 }
 
-bool DcmWidgetElement::isInSequence()
+void DcmWidgetElement::calculateDepthFromTag()
 {
-	QString str = this->getItemTag().replace(" ", "");
-	if (str != this->getItemTag())
+	QString str = this->getItemTag();
+	int numberOfSpaces = 0;
+	for (int i = 0; i < str.size(); i++)
 	{
-		return true;
+		if (str[i] == ' ')
+		{
+			numberOfSpaces++;
+		}
 	}
-	return false;
+	this->setDepth(numberOfSpaces / 2);
 }
 
 int DcmWidgetElement::hexToDecimal(const char * hex)
