@@ -44,12 +44,14 @@ class DICOMViewer : public QMainWindow
 
 		void  getTagKeyOfSequence(DcmTagKey key, int row, DcmTagKey* returnKey, int* numberInSequence);
 
-		bool deleteElementFromFile(DcmWidgetElement element, int row);
+		bool deleteElementFromFile(DcmSequenceOfItems* sequence, DcmWidgetElement element, QList<DcmWidgetElement> list);
 		bool canBeDeleted(DcmWidgetElement element);
-		bool modifyValue(DcmWidgetElement element, int row, QString value);
+		bool modifyValue(DcmSequenceOfItems* sequence, DcmWidgetElement element, QList<DcmWidgetElement> list, QString value);
 
 		void createSimpleEditDialog(DcmWidgetElement element);
 		void generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements);
+
+		void disableButtons(bool status);
 
 	private slots:
 		void fileTriggered(QAction* qaction);

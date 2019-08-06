@@ -75,7 +75,7 @@ bool DcmWidgetElement::checkIfContains(QString str)
 DcmTagKey DcmWidgetElement::extractTagKey()
 {
 	QString str = this->getItemTag().toUpper();
-	str.replace(" ", "");
+	str.replace("-", "");
 	str.replace("(", "");
 	str.replace(")", "");
 	QStringList list = str.split(",");
@@ -88,7 +88,7 @@ void DcmWidgetElement::calculateDepthFromTag()
 	int numberOfSpaces = 0;
 	for (int i = 0; i < str.size(); i++)
 	{
-		if (str[i] == ' ')
+		if (str[i] == '-')
 		{
 			numberOfSpaces++;
 		}
