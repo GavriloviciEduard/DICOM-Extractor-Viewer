@@ -512,6 +512,43 @@ bool DICOMViewer::modifyValue(DcmSequenceOfItems* sequence, DcmWidgetElement ele
 	}
 }
 
+bool DICOMViewer::insertElement(DcmSequenceOfItems * sequence, DcmWidgetElement element, DcmWidgetElement insertElement, QList<DcmWidgetElement> list)
+{
+	int count = -1;
+	int i = list.size() - 1;
+	while (list[i].getItemVR() == "na")
+	{
+		count++;
+		i--;
+		list.removeLast();
+	}
+	DcmItem* item = sequence->getItem(count);
+	if (list[i] == element)
+	{
+		DcmItem* it = new DcmItem(DcmTag(insertElement.extractTagKey()));
+		if (!item->insertSequenceItem(element.extractTagKey(), it).good())
+		{
+			alertFailed("Failed!");
+			return false;
+		}
+		return true;
+	}
+	else
+	{
+		DcmSequenceOfItems* seq;
+		if (item->findAndGetSequence(list[i].extractTagKey(), seq, false, false).good())
+		{
+			list.removeLast();
+			return this->insertElement(seq, element, insertElement, list);
+		}
+		else
+		{
+			alertFailed("Failed");
+			return false;
+		}
+	}
+}
+
 void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 {
 	element.calculateDepthFromTag();
@@ -634,17 +671,78 @@ void DICOMViewer::deleteClicked()
 
 void DICOMViewer::insertClicked()
 {
-	//TESTER
-	QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
-	DcmWidgetElement element = DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
-	QList<DcmWidgetElement> list;
-	list.append(element);
-	generatePathToRoot(element, ui.tableWidget->currentRow(), &list);
-	QString str;
-	for (auto el : list)
+	TagSelectDialog* dialog = new TagSelectDialog(nullptr);
+	dialog->populate();
+	if (dialog->exec() == QDialog::Accepted)
 	{
-		str.append(el.extractTagKey().toString().c_str());
-		str.append(" ");
+		DcmWidgetElement element = dialog->getElement();
+		if (element.getItemVR() == "SQ")
+		{
+			if (file.getDataset()->insertEmptyElement(element.extractTagKey(), false).good())
+			{
+				clearTable();
+				extractData(file);
+			}
+			else
+			{
+				alertFailed("Failed!");
+			}
+		}
+		else //if (element.getItemDescription() == "Item")
+		{
+			QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
+			if (!items.size())
+			{
+				if (file.getDataset()->putAndInsertString(element.extractTagKey(), element.getItemValue().toStdString().c_str()).good())
+				{
+					clearTable();
+					extractData(file);
+					return;
+				}
+				else
+				{
+					alertFailed("No place selected!");
+					return;
+				}
+			}
+			DcmWidgetElement el = DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
+			if (el.getItemVR() != "SQ")
+			{
+				alertFailed("Can only insert in SQ!");
+				return;
+			}
+			el.calculateDepthFromTag();
+			QList<DcmWidgetElement> list;
+			list.append(el);
+			generatePathToRoot(el, ui.tableWidget->currentRow(), &list);
+			if (list.size() > 1)
+			{
+				DcmSequenceOfItems* sequence;
+				if (file.getDataset()->findAndGetSequence(list[list.size() - 1].extractTagKey(), sequence, false, false).good())
+				{
+					list.removeLast();
+					if (insertElement(sequence, el, element, list))
+					{
+						clearTable();
+						extractData(file);
+					}
+				}
+			}
+			else
+			{
+				DcmItem* it = new DcmItem(DcmTag(element.extractTagKey()));
+				if (!file.getDataset()->insertSequenceItem(el.extractTagKey(), it).good())
+				{
+					alertFailed("Failed!");
+					return;
+				}
+				else
+				{
+					clearTable();
+					extractData(file);
+				}
+			}
+
+		}
 	}
-	alertFailed(str.toStdString());
 }

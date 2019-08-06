@@ -118,6 +118,7 @@
     <ClCompile Include="DICOMViewer.cpp" />
     <ClCompile Include="EditDialogSimple.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TagSelectDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="DICOMViewer.h" />
@@ -125,12 +126,17 @@
   <ItemGroup>
     <QtUic Include="DICOMViewer.ui" />
     <QtUic Include="EditDialogSimple.ui" />
+    <QtUic Include="TagSelectDialog.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="DICOMViewer.qrc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DcmWidgetElement.h" />
+    <QtMoc Include="TagSelectDialog.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\..\library\Debug\DCMTK\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\..\library\Debug\DCMTK\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+    </QtMoc>
     <QtMoc Include="EditDialogSimple.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\..\library\Debug\DCMTK\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\..\library\Debug\DCMTK\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>

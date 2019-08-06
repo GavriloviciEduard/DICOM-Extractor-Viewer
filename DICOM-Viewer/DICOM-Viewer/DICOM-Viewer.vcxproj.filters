@@ -11,6 +11,9 @@
     <ClCompile Include="EditDialogSimple.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TagSelectDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -41,12 +44,18 @@
     <QtMoc Include="EditDialogSimple.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="TagSelectDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="DICOMViewer.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="EditDialogSimple.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="TagSelectDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

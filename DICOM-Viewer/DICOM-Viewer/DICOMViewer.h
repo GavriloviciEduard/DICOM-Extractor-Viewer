@@ -10,6 +10,7 @@
 #include "dcmtk/dcmdata/dctag.h"
 #include "DcmWidgetElement.h"
 #include "EditDialogSimple.h"
+#include "TagSelectDialog.h"
 
 class DICOMViewer : public QMainWindow
 {
@@ -47,6 +48,7 @@ class DICOMViewer : public QMainWindow
 		bool deleteElementFromFile(DcmSequenceOfItems* sequence, DcmWidgetElement element, QList<DcmWidgetElement> list);
 		bool canBeDeleted(DcmWidgetElement element);
 		bool modifyValue(DcmSequenceOfItems* sequence, DcmWidgetElement element, QList<DcmWidgetElement> list, QString value);
+		bool insertElement(DcmSequenceOfItems* sequence, DcmWidgetElement element, DcmWidgetElement insertElement, QList<DcmWidgetElement> list);
 
 		void createSimpleEditDialog(DcmWidgetElement element);
 		void generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements);
