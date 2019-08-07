@@ -12,6 +12,9 @@ DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 	ui.tableWidget->verticalHeader()->setDefaultSectionSize(12);
 	ui.tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+	ui.buttonDelete->setEnabled(false);
+	ui.buttonEdit->setEnabled(false);
+	ui.buttonInsert->setEnabled(false);
 }
 
 void DICOMViewer::fileTriggered(QAction* qaction)
@@ -29,6 +32,9 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 				ui.tableWidget->scrollToTop();
 				this->clearTable();
 				this->extractData(file);
+				ui.buttonDelete->setEnabled(true);
+				ui.buttonEdit->setEnabled(true);
+				ui.buttonInsert->setEnabled(true);
 				ui.tableWidget->resizeColumnsToContents();
 				this->setWindowTitle("Viewer - " + fileName);
 				ui.label->setText("Size: " + QString::fromStdString(std::to_string(getFileSize(fileName.toStdString())) + " MB"));
@@ -389,6 +395,46 @@ void DICOMViewer::findText()
 	}
 }
 
+void DICOMViewer::tableClicked(int row, int collumn)
+{
+	QList<QTableWidgetItem*> selectedTags = ui.tableWidget->selectedItems();
+
+	DcmWidgetElement element = DcmWidgetElement(selectedTags[0]->text().trimmed(), selectedTags[1]->text(),
+		selectedTags[2]->text(), selectedTags[3]->text(), selectedTags[4]->text(), selectedTags[5]->text());
+
+	if (selectedTags.size())
+	{
+		for (int i = 0; i < file.getMetaInfo()->card(); i++)
+		{
+			DcmWidgetElement INERelement = this->createElement(file.getMetaInfo()->getElement(i), nullptr, nullptr);
+			if (INERelement == element)
+			{
+				if (!shouldModify(file.getMetaInfo()->getElement(i)))
+				{
+					ui.buttonEdit->setEnabled(false);
+					ui.buttonDelete->setEnabled(false);
+					return;
+				}
+			}
+		}
+		for (int i = 0; i < file.getDataset()->card(); i++)
+		{
+			DcmWidgetElement INERelement = this->createElement(file.getDataset()->getElement(i), nullptr, nullptr);
+			if (INERelement == element)
+			{
+				if (!shouldModify(file.getDataset()->getElement(i)))
+				{
+					ui.buttonEdit->setEnabled(false);
+					ui.buttonDelete->setEnabled(false);
+					return;
+				}
+			}
+		}
+	}
+	ui.buttonEdit->setEnabled(true);
+	ui.buttonDelete->setEnabled(true);
+}
+
 void DICOMViewer::closeButtonClicked()
 {
 	this->close();
@@ -429,11 +475,21 @@ bool DICOMViewer::deleteElementFromFile(DcmSequenceOfItems* sequence, DcmWidgetE
 {
 	int count = -1;
 	int i = list.size() - 1;
-	while (list[i].getItemVR() == "na")
+	while (i >= 0 && list[i].getItemVR() == "na")
 	{
 		count++;
 		i--;
 		list.removeLast();
+	}
+	if (list.size() == 0)
+	{
+		count--;
+		if (!sequence->getParentItem()->findAndDeleteSequenceItem(sequence->getTag().getBaseTag(), count).good())
+		{
+			alertFailed("Failed!");
+			return false;
+		}
+		return true;
 	}
 	DcmItem* item = sequence->getItem(count);
 	if (list[i] == element)
@@ -516,22 +572,45 @@ bool DICOMViewer::insertElement(DcmSequenceOfItems * sequence, DcmWidgetElement 
 {
 	int count = -1;
 	int i = list.size() - 1;
-	while (list[i].getItemVR() == "na")
+	while (i >= 0 && list[i].getItemVR() == "na")
 	{
 		count++;
 		i--;
 		list.removeLast();
 	}
-	DcmItem* item = sequence->getItem(count);
-	if (list[i] == element)
+	if (list.size() == 0)
 	{
-		DcmItem* it = new DcmItem(DcmTag(insertElement.extractTagKey()));
-		if (!item->insertSequenceItem(element.extractTagKey(), it).good())
+		count--;
+		DcmItem* item = sequence->getItem(count);
+		if (!item->putAndInsertString(insertElement.extractTagKey(), insertElement.getItemValue().toStdString().c_str(), false).good())
 		{
 			alertFailed("Failed!");
 			return false;
 		}
 		return true;
+	}
+	DcmItem* item = sequence->getItem(count);
+	if (list[i] == element)
+	{
+		if (insertElement.getItemVR() == "na")
+		{
+			DcmItem* it = new DcmItem(DcmTag(insertElement.extractTagKey()));
+			if (!item->insertSequenceItem(element.extractTagKey(), it).good())
+			{
+				alertFailed("Failed!");
+				return false;
+			}
+			return true;
+		}
+		else
+		{
+			if (!item->putAndInsertString(insertElement.extractTagKey(), insertElement.getItemValue().toStdString().c_str(), false).good())
+			{
+				alertFailed("Failed!");
+				return false;
+			}
+			return true;
+		}
 	}
 	else
 	{
@@ -638,6 +717,15 @@ void DICOMViewer::disableButtons(bool status)
 	ui.buttonInsert->setEnabled(!status);
 }
 
+bool DICOMViewer::shouldModify(DcmElement* element)
+{
+	if (element->getETag() == 0 || element->getGTag() == 0 || element->getGTag() == 2 || element->getGTag() == 1
+		|| element->getGTag() == 5 || element->getGTag() == 3 || element->getGTag() == 7 || element->getGTag() == 0xffff)
+		return false;
+
+	return true;
+}
+
 void DICOMViewer::deleteClicked()
 {
 	QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
@@ -675,66 +763,65 @@ void DICOMViewer::insertClicked()
 	dialog->populate();
 	if (dialog->exec() == QDialog::Accepted)
 	{
-		DcmWidgetElement element = dialog->getElement();
-		if (element.getItemVR() == "SQ")
+		DcmWidgetElement insertElement = dialog->getElement();
+		QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
+		if (items.size())
 		{
-			if (file.getDataset()->insertEmptyElement(element.extractTagKey(), false).good())
-			{
-				clearTable();
-				extractData(file);
-			}
-			else
-			{
-				alertFailed("Failed!");
-			}
-		}
-		else //if (element.getItemDescription() == "Item")
-		{
-			QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
-			if (!items.size())
-			{
-				if (file.getDataset()->putAndInsertString(element.extractTagKey(), element.getItemValue().toStdString().c_str()).good())
-				{
-					clearTable();
-					extractData(file);
-					return;
-				}
-				else
-				{
-					alertFailed("No place selected!");
-					return;
-				}
-			}
-			DcmWidgetElement el = DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
-			if (el.getItemVR() != "SQ")
-			{
-				alertFailed("Can only insert in SQ!");
-				return;
-			}
-			el.calculateDepthFromTag();
+			DcmWidgetElement selectedElement = DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
 			QList<DcmWidgetElement> list;
-			list.append(el);
-			generatePathToRoot(el, ui.tableWidget->currentRow(), &list);
-			if (list.size() > 1)
+			list.append(selectedElement);
+			generatePathToRoot(selectedElement, ui.tableWidget->currentRow(), &list);
+			if (selectedElement.getItemVR() == "SQ" && insertElement.getItemVR() == "na")
+			{
+				DcmSequenceOfItems* sequence;
+				if (file.getDataset()->findAndGetSequence(list[list.size() - 1].extractTagKey(), sequence, false, false).good())
+				{
+					if (list.size() == 1)
+					{
+						DcmItem* it = new DcmItem(DcmTag(insertElement.extractTagKey()));
+						if (!file.getDataset()->insertSequenceItem(sequence->getTag().getBaseTag(), it).good())
+						{
+							alertFailed("Failed!");
+						}
+						else
+						{
+							clearTable();
+							extractData(file);
+						}
+					}
+					else
+					{
+						list.removeLast();
+						if (this->insertElement(sequence, selectedElement, insertElement, list))
+						{
+							clearTable();
+							extractData(file);
+						}
+					}
+				}
+			}
+			else if (selectedElement.getItemVR() == "na")
 			{
 				DcmSequenceOfItems* sequence;
 				if (file.getDataset()->findAndGetSequence(list[list.size() - 1].extractTagKey(), sequence, false, false).good())
 				{
 					list.removeLast();
-					if (insertElement(sequence, el, element, list))
+					if (this->insertElement(sequence, selectedElement, insertElement, list))
 					{
 						clearTable();
 						extractData(file);
 					}
 				}
 			}
+			else if (selectedElement.getItemVR() == "SQ" && insertElement.getItemVR() != "na")
+			{
+				alertFailed("Can only insert items in sequence!");
+			}
 			else
 			{
-				DcmItem* it = new DcmItem(DcmTag(element.extractTagKey()));
-				if (!file.getDataset()->insertSequenceItem(el.extractTagKey(), it).good())
+				if (!file.getDataset()->putAndInsertString(insertElement.extractTagKey(), insertElement.getItemValue().toStdString().c_str(), false).good())
 				{
 					alertFailed("Failed!");
-					return;
 				}
 				else
 				{
@@ -742,7 +829,22 @@ void DICOMViewer::insertClicked()
 					extractData(file);
 				}
 			}
-
 		}
+		else
+		{
+			if (!file.getDataset()->putAndInsertString(insertElement.extractTagKey(),insertElement.getItemValue().toStdString().c_str(),false).good())
+			{
+				alertFailed("Failed!");
+			}
+			else
+			{
+				clearTable();
+				extractData(file);
+			}
+		}
+	}
+	else
+	{
+
 	}
 }

@@ -54,6 +54,7 @@ class DICOMViewer : public QMainWindow
 		void generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements);
 
 		void disableButtons(bool status);
+		bool shouldModify(DcmElement* element);
 
 	private slots:
 		void fileTriggered(QAction* qaction);
@@ -62,4 +63,5 @@ class DICOMViewer : public QMainWindow
 		void deleteClicked();
 		void insertClicked();
 		void findText();
+		void tableClicked(int row, int collumn);
 };

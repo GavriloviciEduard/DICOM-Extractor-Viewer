@@ -41,12 +41,15 @@ void TagSelectDialog::populate()
 		QString description = item->getTagName();
 		QString vr = item->getVR().getVRName();
 
-		ui.tableWidget->insertRow(count);
-		ui.tableWidget->setItem(count, 0, new QTableWidgetItem(key));
-		ui.tableWidget->setItem(count, 1, new QTableWidgetItem(description));
-		ui.tableWidget->setItem(count, 2, new QTableWidgetItem(vr));
+		if (key != "(fffe,e00d)" && key != "(fffe,00dd)")
+		{
+			ui.tableWidget->insertRow(count);
+			ui.tableWidget->setItem(count, 0, new QTableWidgetItem(key));
+			ui.tableWidget->setItem(count, 1, new QTableWidgetItem(description));
+			ui.tableWidget->setItem(count, 2, new QTableWidgetItem(vr));
+			count++;
+		}
 		iterStart++;
-		count++;
 	}
 	ui.tableWidget->resizeColumnsToContents();
 }
@@ -104,10 +107,13 @@ void TagSelectDialog::findText()
 			clearTable();
 			for (int i = 0; i < result.size(); i++)
 			{
-				ui.tableWidget->insertRow(i);
-				ui.tableWidget->setItem(i, 0, new QTableWidgetItem(result[i].getItemTag()));
-				ui.tableWidget->setItem(i, 1, new QTableWidgetItem(result[i].getItemDescription()));
-				ui.tableWidget->setItem(i, 2, new QTableWidgetItem(result[i].getItemVR()));
+				if (result[i].getItemTag() != "(fffe,e00d)" &&result[i].getItemTag() != "(fffe,00dd)")
+				{
+					ui.tableWidget->insertRow(i);
+					ui.tableWidget->setItem(i, 0, new QTableWidgetItem(result[i].getItemTag()));
+					ui.tableWidget->setItem(i, 1, new QTableWidgetItem(result[i].getItemDescription()));
+					ui.tableWidget->setItem(i, 2, new QTableWidgetItem(result[i].getItemVR()));
+				}
 			}
 		}
 	}
