@@ -52,7 +52,8 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 	}
 	else if (option == "Compare")
 	{
-
+		CompareDialog* dialog = new CompareDialog(nullptr);
+		dialog->exec();
 	}
 	else if (option == "Refresh")
 	{
@@ -90,7 +91,7 @@ void DICOMViewer::insertInTable(DcmElement* element)
 	this->depthRE = 0;
 	this->getNestedSequences(DcmTagKey(
 		OFstatic_cast(Uint16, element->getGTag()),
-		OFstatic_cast(Uint16, element->getETag())));
+		OFstatic_cast(Uint16, element->getETag())),nullptr);
 
 	if (this->nestedElements.size())
 	{
@@ -140,53 +141,42 @@ void DICOMViewer::repopulate(std::vector<DcmWidgetElement> source)
 	}
 }
 
-void DICOMViewer::getNestedSequences(DcmTagKey tag)
+void DICOMViewer::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence)
 {
-	DcmSequenceOfItems *sequence = NULL;
-	OFCondition cond = file.getDataset()->findAndGetSequence(tag, sequence, true);
-
-	if (cond.good())
+	OFCondition cond = OFCondition(EC_CorruptedData);
+	if (tag.hasValidGroup())
+		cond = file.getDataset()->findAndGetSequence(tag, sequence, true);
+	if (cond.good() || (sequence != nullptr &&  sequence->card()))
 	{
-		DcmWidgetElement widgetElement1 = createElement(nullptr,sequence,nullptr);
-
+		DcmWidgetElement widgetElement1 = createElement(nullptr, sequence, nullptr);
 		widgetElement1.setDepth(this->depthRE);
-		
 		this->nestedElements.push_back(widgetElement1);
-
 		this->depthRE++;
-
 		for (int i = 0; i < sequence->card(); i++)
 		{
-			DcmWidgetElement widgetElement2 = createElement(nullptr,nullptr, sequence->getItem(i));
-
+			DcmWidgetElement widgetElement2 = createElement(nullptr, nullptr, sequence->getItem(i));
 			widgetElement2.setDepth(this->depthRE);
-
 			this->nestedElements.push_back(widgetElement2);
-			
-
 			this->iterateItem(sequence->getItem(i), this->depthRE);
-
 			DcmWidgetElement widgetElementDelim = DcmWidgetElement(
-				QString("(fffe,e00d)"), 
+				QString("(fffe,e00d)"),
 				QString("??"), QString("0"),
-				QString("0"), 
-				QString("ItemDelimitationItem"), 
+				QString("0"),
+				QString("ItemDelimitationItem"),
 				QString(""));
 			this->depthRE--;
 			widgetElementDelim.setDepth(this->depthRE);
 			this->nestedElements.push_back(widgetElementDelim);
 		}
-
 		DcmWidgetElement widgetElementDelim = DcmWidgetElement(
-			QString("(fffe,e0dd)"), 
-			QString("??"), 
-			QString("0"), 
-			QString("0"), 
-			QString("SequenceDelimitationItem"), 
+			QString("(fffe,e0dd)"),
+			QString("??"),
+			QString("0"),
+			QString("0"),
+			QString("SequenceDelimitationItem"),
 			QString(""));
 		this->depthRE--;
 		widgetElementDelim.setDepth(this->depthRE);
-
 		this->nestedElements.push_back(widgetElementDelim);
 	}
 }
@@ -196,16 +186,16 @@ void DICOMViewer::iterateItem(DcmItem * item,int& depth)
 	depth++;
 	for (int i = 0; i < item->getNumberOfValues(); i++)
 	{
-		DcmWidgetElement widgetElement = createElement(item->getElement(i),nullptr,nullptr);
+		DcmWidgetElement widgetElement = createElement(item->getElement(i), nullptr, nullptr);
 		if (widgetElement.getItemVR() != "SQ")
 		{
 			widgetElement.setDepth(depth);
 			this->nestedElements.push_back(widgetElement);
 		}
-
-		this->getNestedSequences(DcmTagKey(
-			OFstatic_cast(Uint16, item->getElement(i)->getGTag()), 
-			OFstatic_cast(Uint16, item->getElement(i)->getETag())));
+		DcmTagKey NULLkey;
+		DcmSequenceOfItems* sequence;
+		item->getElement(i)->getParentItem()->findAndGetSequence(item->getElement(i)->getTag().getBaseTag(), sequence, true);
+		this->getNestedSequences(NULLkey, sequence);
 	}
 }
 

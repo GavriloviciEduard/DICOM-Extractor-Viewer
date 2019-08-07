@@ -11,6 +11,7 @@
 #include "DcmWidgetElement.h"
 #include "EditDialogSimple.h"
 #include "TagSelectDialog.h"
+#include "CompareDialog.h"
 
 class DICOMViewer : public QMainWindow
 {
@@ -31,7 +32,7 @@ class DICOMViewer : public QMainWindow
 		void insertInTable(DcmElement* element);
 		void extractData(DcmFileFormat file);
 		void repopulate(std::vector<DcmWidgetElement> source);
-		void getNestedSequences(DcmTagKey tag);
+		void getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence);
 		void iterateItem(DcmItem *item, int& depth);
 		void clearTable();
 		void alertFailed(std::string message);
