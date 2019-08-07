@@ -28,6 +28,7 @@ class DcmWidgetElement
 		QString getItemValue();
 		int getTableIndex();
 		int getDepth();
+		void calculateTableIndex(const int& current,const std::vector<DcmWidgetElement>& elements);
 
 		std::string toString();
 		void setDepth(const int& depth);

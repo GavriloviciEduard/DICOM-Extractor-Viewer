@@ -47,14 +47,13 @@ class DICOMViewer : public QMainWindow
 		void  getTagKeyOfSequence(DcmTagKey key, int row, DcmTagKey* returnKey, int* numberInSequence);
 
 		bool deleteElementFromFile(DcmSequenceOfItems* sequence, DcmWidgetElement element, QList<DcmWidgetElement> list);
-		bool canBeDeleted(DcmWidgetElement element);
 		bool modifyValue(DcmSequenceOfItems* sequence, DcmWidgetElement element, QList<DcmWidgetElement> list, QString value);
 		bool insertElement(DcmSequenceOfItems* sequence, DcmWidgetElement element, DcmWidgetElement insertElement, QList<DcmWidgetElement> list);
 
 		void createSimpleEditDialog(DcmWidgetElement element);
 		void generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements);
-
-		bool shouldModify(DcmElement* element);
+		bool shouldModify(DcmWidgetElement element);
+		int currentRow(DcmWidgetElement element,const int& finalRow);
 
 	private slots:
 		void fileTriggered(QAction* qaction);

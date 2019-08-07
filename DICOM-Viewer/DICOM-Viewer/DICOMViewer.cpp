@@ -17,6 +17,7 @@ DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 	ui.buttonInsert->setEnabled(false);
 }
 
+//========================================================================================================================
 void DICOMViewer::fileTriggered(QAction* qaction)
 {
 	QString option = qaction->text();
@@ -70,6 +71,7 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::extractData(DcmFileFormat file)
 {
 	DcmMetaInfo* metaInfo = file.getMetaInfo();
@@ -86,6 +88,7 @@ void DICOMViewer::extractData(DcmFileFormat file)
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::insertInTable(DcmElement* element)
 {
 	this->depthRE = 0;
@@ -114,6 +117,7 @@ void DICOMViewer::insertInTable(DcmElement* element)
 	else
 	{
 		DcmWidgetElement widgetElement = createElement(element,nullptr,nullptr);
+		widgetElement.setItemTag(widgetElement.getItemTag().toUpper());
 
 		this->insert(widgetElement, globalIndex);
 
@@ -125,6 +129,7 @@ void DICOMViewer::insertInTable(DcmElement* element)
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::repopulate(std::vector<DcmWidgetElement> source)
 {
 	ui.tableWidget->clearContents();
@@ -141,6 +146,7 @@ void DICOMViewer::repopulate(std::vector<DcmWidgetElement> source)
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence)
 {
 	OFCondition cond = OFCondition(EC_CorruptedData);
@@ -150,16 +156,18 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence
 	{
 		DcmWidgetElement widgetElement1 = createElement(nullptr, sequence, nullptr);
 		widgetElement1.setDepth(this->depthRE);
+		widgetElement1.setItemTag(widgetElement1.getItemTag().toUpper());
 		this->nestedElements.push_back(widgetElement1);
 		this->depthRE++;
 		for (int i = 0; i < sequence->card(); i++)
 		{
 			DcmWidgetElement widgetElement2 = createElement(nullptr, nullptr, sequence->getItem(i));
 			widgetElement2.setDepth(this->depthRE);
+			widgetElement2.setItemTag(widgetElement2.getItemTag().toUpper());
 			this->nestedElements.push_back(widgetElement2);
 			this->iterateItem(sequence->getItem(i), this->depthRE);
 			DcmWidgetElement widgetElementDelim = DcmWidgetElement(
-				QString("(fffe,e00d)"),
+				QString("(FFFE,E00D)"),
 				QString("??"), QString("0"),
 				QString("0"),
 				QString("ItemDelimitationItem"),
@@ -169,7 +177,7 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence
 			this->nestedElements.push_back(widgetElementDelim);
 		}
 		DcmWidgetElement widgetElementDelim = DcmWidgetElement(
-			QString("(fffe,e0dd)"),
+			QString("(FFFE,E0DD)"),
 			QString("??"),
 			QString("0"),
 			QString("0"),
@@ -181,12 +189,15 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::iterateItem(DcmItem * item,int& depth)
 {
 	depth++;
 	for (int i = 0; i < item->getNumberOfValues(); i++)
 	{
 		DcmWidgetElement widgetElement = createElement(item->getElement(i), nullptr, nullptr);
+		widgetElement.setItemTag(widgetElement.getItemTag().toUpper());
+
 		if (widgetElement.getItemVR() != "SQ")
 		{
 			widgetElement.setDepth(depth);
@@ -199,6 +210,7 @@ void DICOMViewer::iterateItem(DcmItem * item,int& depth)
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::clearTable()
 {
 	if (ui.tableWidget->rowCount())
@@ -217,6 +229,7 @@ void DICOMViewer::clearTable()
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::alertFailed(std::string message)
 {
 	QMessageBox* messageBox = new QMessageBox();
@@ -226,6 +239,7 @@ void DICOMViewer::alertFailed(std::string message)
 	delete messageBox;
 }
 
+//========================================================================================================================
 void DICOMViewer::indent(DcmWidgetElement & element, int depth)
 {
 	QString str = element.getItemTag();
@@ -237,10 +251,8 @@ void DICOMViewer::indent(DcmWidgetElement & element, int depth)
 	element.setItemTag(str);
 }
 
-DcmWidgetElement DICOMViewer::createElement(
-	DcmElement* element, 
-	DcmSequenceOfItems* sequence, 
-	DcmItem* item)
+//========================================================================================================================
+DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfItems* sequence, DcmItem* item)
 {
 	if (element)
 	{
@@ -316,6 +328,7 @@ DcmWidgetElement DICOMViewer::createElement(
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::insert(DcmWidgetElement element, int &index)
 {
 	ui.tableWidget->insertRow(index);
@@ -327,6 +340,7 @@ void DICOMViewer::insert(DcmWidgetElement element, int &index)
 	ui.tableWidget->setItem(index, 5, new QTableWidgetItem(element.getItemValue()));
 }
 
+//========================================================================================================================
 double DICOMViewer::getFileSize(std::string fileName)
 {
 	std::ifstream in_file(fileName, std::ios::binary | std::ios::ate);
@@ -336,6 +350,7 @@ double DICOMViewer::getFileSize(std::string fileName)
 	return size;
 }
 
+//========================================================================================================================
 void DICOMViewer::getTagKeyOfSequence(DcmTagKey key, int row, DcmTagKey* returnKey, int* numberInSequence)
 {
 	*numberInSequence = 0;
@@ -360,14 +375,17 @@ void DICOMViewer::getTagKeyOfSequence(DcmTagKey key, int row, DcmTagKey* returnK
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::findText()
 {
 	QString text = ui.lineEdit->text();
+
 	if (!text.isEmpty())
 	{
 		if (this->elements.size())
 		{
 			std::vector<DcmWidgetElement> result;
+
 			for (DcmWidgetElement element : this->elements)
 			{
 				if (element.checkIfContains(text))
@@ -385,6 +403,7 @@ void DICOMViewer::findText()
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::tableClicked(int row, int collumn)
 {
 	QList<QTableWidgetItem*> selectedTags = ui.tableWidget->selectedItems();
@@ -394,30 +413,13 @@ void DICOMViewer::tableClicked(int row, int collumn)
 
 	if (selectedTags.size())
 	{
-		for (int i = 0; i < file.getMetaInfo()->card(); i++)
+		for (auto elementV : this->elements)
 		{
-			DcmWidgetElement INERelement = this->createElement(file.getMetaInfo()->getElement(i), nullptr, nullptr);
-			if (INERelement == element)
+			if (element == elementV && !shouldModify(element))
 			{
-				if (!shouldModify(file.getMetaInfo()->getElement(i)))
-				{
-					ui.buttonEdit->setEnabled(false);
-					ui.buttonDelete->setEnabled(false);
-					return;
-				}
-			}
-		}
-		for (int i = 0; i < file.getDataset()->card(); i++)
-		{
-			DcmWidgetElement INERelement = this->createElement(file.getDataset()->getElement(i), nullptr, nullptr);
-			if (INERelement == element)
-			{
-				if (!shouldModify(file.getDataset()->getElement(i)))
-				{
-					ui.buttonEdit->setEnabled(false);
-					ui.buttonDelete->setEnabled(false);
-					return;
-				}
+				ui.buttonEdit->setEnabled(false);
+				ui.buttonDelete->setEnabled(false);
+				return;
 			}
 		}
 	}
@@ -425,42 +427,26 @@ void DICOMViewer::tableClicked(int row, int collumn)
 	ui.buttonDelete->setEnabled(true);
 }
 
+//========================================================================================================================
 void DICOMViewer::closeButtonClicked()
 {
 	this->close();
 }
 
+//========================================================================================================================
 void DICOMViewer::editClicked()
 {
 	QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
+
+
 	if (items.size())
 	{
-		DcmWidgetElement element = DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
-		if (canBeDeleted(element))
-		{
-			this->createSimpleEditDialog(element);
-		}
+		DcmWidgetElement elementWidget =  DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
+		this->createSimpleEditDialog(elementWidget);
 	}
 }
 
-bool DICOMViewer::canBeDeleted(DcmWidgetElement element)
-{
-	DcmTag tag = DcmTag(element.extractTagKey());
-	if (tag.getETag() == 0 ||
-		tag.getGTag() == 0 ||
-		tag.getGTag() == 2 ||
-		tag.getGTag() == 1 ||
-		tag.getGTag() == 5 ||
-		tag.getGTag() == 3 ||
-		tag.getGTag() == 7 ||
-		tag.getGTag() == 0xffff)
-	{
-		alertFailed("Can't delete item!");
-		return false;
-	}
-	return true;
-}
-
+//========================================================================================================================
 bool DICOMViewer::deleteElementFromFile(DcmSequenceOfItems* sequence, DcmWidgetElement element, QList<DcmWidgetElement> list)
 {
 	int count = -1;
@@ -510,6 +496,7 @@ bool DICOMViewer::deleteElementFromFile(DcmSequenceOfItems* sequence, DcmWidgetE
 	}
 }
 
+//========================================================================================================================
 bool DICOMViewer::modifyValue(DcmSequenceOfItems* sequence, DcmWidgetElement element, QList<DcmWidgetElement> list, QString value)
 {
 	int count = -1;
@@ -558,6 +545,7 @@ bool DICOMViewer::modifyValue(DcmSequenceOfItems* sequence, DcmWidgetElement ele
 	}
 }
 
+//========================================================================================================================
 bool DICOMViewer::insertElement(DcmSequenceOfItems * sequence, DcmWidgetElement element, DcmWidgetElement insertElement, QList<DcmWidgetElement> list)
 {
 	int count = -1;
@@ -618,6 +606,7 @@ bool DICOMViewer::insertElement(DcmSequenceOfItems * sequence, DcmWidgetElement 
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 {
 	element.calculateDepthFromTag();
@@ -670,6 +659,7 @@ void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements)
 {
 	element.calculateDepthFromTag();
@@ -678,13 +668,6 @@ void DICOMViewer::generatePathToRoot(DcmWidgetElement element, int row, QList<Dc
 		return;
 	}
 	DcmWidgetElement el = this->elements[row];
-	/*DcmWidgetElement el = DcmWidgetElement(
-		ui.tableWidget->item(row, 0)->text(),
-		ui.tableWidget->item(row, 1)->text(),
-		ui.tableWidget->item(row, 2)->text(),
-		ui.tableWidget->item(row, 3)->text(),
-		ui.tableWidget->item(row, 4)->text(),
-		ui.tableWidget->item(row, 5)->text());*/
 	el.calculateDepthFromTag();
 	if (el.getItemVR() == "na" && el.getDepth() == element.getDepth())
 	{
@@ -701,23 +684,54 @@ void DICOMViewer::generatePathToRoot(DcmWidgetElement element, int row, QList<Dc
 	}
 }
 
-bool DICOMViewer::shouldModify(DcmElement* element)
+//========================================================================================================================
+bool DICOMViewer::shouldModify(DcmWidgetElement element)
 {
-	if (element->getETag() == 0 || element->getGTag() == 0 || element->getGTag() == 2 || element->getGTag() == 1
-		|| element->getGTag() == 5 || element->getGTag() == 3 || element->getGTag() == 7 || element->getGTag() == 0xffff)
+
+	bool contains = false;
+	
+	if (element.getItemDescription() == "PhotometricInterpretation" || element.getItemDescription() =="Rows" || element.getItemDescription()== "Columns" || 
+		element.getItemDescription().toUpper().contains("PIXEL") || element.getItemDescription().toUpper().contains("FRAME") || element.getItemDescription().toUpper().contains("BIT"))
+		contains = true;
+
+	DcmTagKey tagKey = element.extractTagKey();
+
+	if (tagKey.getElement() == 0 || tagKey.getGroup() == 0 || tagKey.getGroup() == 2 || tagKey.getGroup() == 1
+		|| tagKey.getGroup() == 5 || tagKey.getGroup() == 3 || tagKey.getGroup() == 7 || tagKey.getGroup() == 0xffff || contains)
 		return false;
 
 	return true;
 }
 
+//========================================================================================================================
+int DICOMViewer::currentRow(DcmWidgetElement element, const int& finalRow)
+{
+
+	int index = 0;
+
+	for (int i = 0; i <= finalRow; i++)
+	{
+		DcmWidgetElement innerElement = DcmWidgetElement(ui.tableWidget->item(i,0)->text(), ui.tableWidget->item(i, 1)->text(), 
+			ui.tableWidget->item(i, 2)->text(), ui.tableWidget->item(i, 3)->text(), ui.tableWidget->item(i, 4)->text(), ui.tableWidget->item(i, 5)->text());
+
+		if (element == innerElement)
+			index++;
+	}
+
+	return index;
+
+}
+
+//========================================================================================================================
 void DICOMViewer::deleteClicked()
 {
 	QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
 	DcmWidgetElement element = DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
+	element.calculateTableIndex(currentRow(element,ui.tableWidget->currentRow()),this->elements);
 	element.calculateDepthFromTag();
 	QList<DcmWidgetElement> list;
 	list.append(element);
-	generatePathToRoot(element, ui.tableWidget->currentRow(), &list);
+	generatePathToRoot(element, element.getTableIndex(), &list);
 	if (list.size() > 1)
 	{
 		DcmSequenceOfItems* sequence;
@@ -741,6 +755,7 @@ void DICOMViewer::deleteClicked()
 	}
 }
 
+//========================================================================================================================
 void DICOMViewer::insertClicked()
 {
 	TagSelectDialog* dialog = new TagSelectDialog(nullptr);

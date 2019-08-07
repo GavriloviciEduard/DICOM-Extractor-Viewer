@@ -56,6 +56,23 @@ int DcmWidgetElement::getDepth()
 	return this->depth;
 }
 
+void DcmWidgetElement::calculateTableIndex(const int & current, const std::vector<DcmWidgetElement>& elements)
+{
+	int count = 0;
+
+	for (auto element : elements)
+	{
+		if (*this == element)
+			count++;
+
+		if (count == current)
+		{
+			this->setTableIndex(element.getTableIndex());
+			break;
+		}
+	}
+}
+
 void DcmWidgetElement::setDepth(const int & depth)
 {
 	this->depth = depth;
