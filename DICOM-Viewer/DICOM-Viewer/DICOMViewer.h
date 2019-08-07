@@ -53,7 +53,6 @@ class DICOMViewer : public QMainWindow
 		void createSimpleEditDialog(DcmWidgetElement element);
 		void generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements);
 
-		void disableButtons(bool status);
 		bool shouldModify(DcmElement* element);
 
 	private slots:

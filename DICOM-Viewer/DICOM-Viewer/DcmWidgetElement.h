@@ -13,6 +13,7 @@ class DcmWidgetElement
 		QString itemDescription;
 		QString itemValue;
 		int depth = -1;
+		int tableIndex = -1;
 
 	public:
 		DcmWidgetElement() { }
@@ -25,17 +26,17 @@ class DcmWidgetElement
 		QString getItemLength();
 		QString getItemDescription();
 		QString getItemValue();
-		std::string toString();
+		int getTableIndex();
 		int getDepth();
+
+		std::string toString();
 		void setDepth(const int& depth);
+		void setTableIndex(const int& index);
 		void incrementDepth();
 		void setItemTag(const QString& final);
 		bool checkIfContains(QString str);
 		DcmTagKey extractTagKey();
-
 		void calculateDepthFromTag();
-
 		static int hexToDecimal(const char* hex);
-
 		bool operator==(DcmWidgetElement &element);
 };

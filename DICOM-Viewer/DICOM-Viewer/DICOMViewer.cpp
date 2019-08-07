@@ -101,6 +101,7 @@ void DICOMViewer::insertInTable(DcmElement* element)
 			this->insert(element, globalIndex);
 
 			DcmWidgetElement copyElement = DcmWidgetElement(element);
+			copyElement.setTableIndex(globalIndex);
 			this->elements.push_back(copyElement);
 			this->globalIndex++;
 
@@ -116,6 +117,7 @@ void DICOMViewer::insertInTable(DcmElement* element)
 		this->insert(widgetElement, globalIndex);
 
 		DcmWidgetElement copyElement = DcmWidgetElement(widgetElement);
+		copyElement.setTableIndex(globalIndex);
 		this->elements.push_back(copyElement);
 
 		this->globalIndex++;
@@ -375,7 +377,6 @@ void DICOMViewer::findText()
 	{
 		if (this->elements.size())
 		{
-			disableButtons(true);
 			std::vector<DcmWidgetElement> result;
 			for (DcmWidgetElement element : this->elements)
 			{
@@ -391,7 +392,6 @@ void DICOMViewer::findText()
 	else
 	{
 		repopulate(this->elements);
-		disableButtons(false);
 	}
 }
 
@@ -687,13 +687,14 @@ void DICOMViewer::generatePathToRoot(DcmWidgetElement element, int row, QList<Dc
 	{
 		return;
 	}
-	DcmWidgetElement el = DcmWidgetElement(
+	DcmWidgetElement el = this->elements[row];
+	/*DcmWidgetElement el = DcmWidgetElement(
 		ui.tableWidget->item(row, 0)->text(),
 		ui.tableWidget->item(row, 1)->text(),
 		ui.tableWidget->item(row, 2)->text(),
 		ui.tableWidget->item(row, 3)->text(),
 		ui.tableWidget->item(row, 4)->text(),
-		ui.tableWidget->item(row, 5)->text());
+		ui.tableWidget->item(row, 5)->text());*/
 	el.calculateDepthFromTag();
 	if (el.getItemVR() == "na" && el.getDepth() == element.getDepth())
 	{
@@ -708,13 +709,6 @@ void DICOMViewer::generatePathToRoot(DcmWidgetElement element, int row, QList<Dc
 	{
 		generatePathToRoot(element, --row, elements);
 	}
-}
-
-void DICOMViewer::disableButtons(bool status)
-{
-	ui.buttonDelete->setEnabled(!status);
-	ui.buttonEdit->setEnabled(!status);
-	ui.buttonInsert->setEnabled(!status);
 }
 
 bool DICOMViewer::shouldModify(DcmElement* element)

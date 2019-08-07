@@ -41,6 +41,11 @@ QString DcmWidgetElement::getItemValue()
 	return this->itemValue;
 }
 
+int DcmWidgetElement::getTableIndex()
+{
+	return this->tableIndex;
+}
+
 std::string DcmWidgetElement::toString()
 {
 	return std::string(this->itemTag.toStdString() + " " + this->itemVM.toStdString() + " "+ this->itemVR.toStdString() + " " + this->itemLength.toStdString() + " " + this->itemDescription.toStdString() + " " + this->itemValue.toStdString());
@@ -54,6 +59,11 @@ int DcmWidgetElement::getDepth()
 void DcmWidgetElement::setDepth(const int & depth)
 {
 	this->depth = depth;
+}
+
+void DcmWidgetElement::setTableIndex(const int & index)
+{
+	this->tableIndex = index;
 }
 
 void DcmWidgetElement::incrementDepth()
