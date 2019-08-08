@@ -8,11 +8,12 @@ TagSelectDialog::TagSelectDialog(QDialog * parent)
 	ui.tableWidget->verticalHeader()->setDefaultSectionSize(12);
 	ui.tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
 TagSelectDialog::~TagSelectDialog()
 {
-
+	clearTable();
 }
 
 DcmWidgetElement TagSelectDialog::getElement()
@@ -52,6 +53,7 @@ void TagSelectDialog::populate()
 		iterStart++;
 	}
 	ui.tableWidget->resizeColumnsToContents();
+	delete dictionary;
 }
 
 void TagSelectDialog::okPressed()
@@ -84,7 +86,7 @@ void TagSelectDialog::findText()
 	std::vector<DcmWidgetElement> result;
 	if (!text.isEmpty())
 	{
-		DcmDataDictionary* dictionary = new DcmDataDictionary(true, false);
+		std::unique_ptr <DcmDataDictionary> dictionary = std::make_unique<DcmDataDictionary>(true, false);
 		DcmHashDictIterator iterStart = dictionary->normalBegin();
 		DcmHashDictIterator iterEnd = dictionary->normalEnd();
 		int count = 0;

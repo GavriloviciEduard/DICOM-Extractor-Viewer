@@ -102,7 +102,7 @@ bool DcmWidgetElement::checkIfContains(QString str)
 DcmTagKey DcmWidgetElement::extractTagKey()
 {
 	QString str = this->getItemTag().toUpper();
-	str.replace("-", "");
+	str.replace(" ", "");
 	str.replace("(", "");
 	str.replace(")", "");
 	QStringList list = str.split(",");
@@ -115,7 +115,7 @@ void DcmWidgetElement::calculateDepthFromTag()
 	int numberOfSpaces = 0;
 	for (int i = 0; i < str.size(); i++)
 	{
-		if (str[i] == '-')
+		if (str[i] == ' ')
 		{
 			numberOfSpaces++;
 		}
@@ -146,9 +146,35 @@ int DcmWidgetElement::hexToDecimal(const char * hex)
 
 bool DcmWidgetElement::operator==(DcmWidgetElement & element)
 {
-	return this->getItemTag() == element.getItemTag() &&
+	return this->getItemTag().replace(" ","") == element.getItemTag().replace(" ","") &&
 		this->getItemVM() == element.getItemVM() &&
 		this->getItemVR() == element.getItemVR() &&
 		this->getItemLength() == element.getItemLength() &&
 		this->getItemValue() == element.getItemValue();
+}
+
+bool DcmWidgetElement::operator>(DcmWidgetElement & element)
+{
+	return this->extractTagKey() > element.extractTagKey();
+}
+
+bool DcmWidgetElement::operator<(DcmWidgetElement & element)
+{
+	return this->extractTagKey() < element.extractTagKey();
+}
+
+int DcmWidgetElement::compareTagKey(DcmWidgetElement & element)
+{
+	if (this->extractTagKey() == element.extractTagKey())
+	{
+		return 1;
+	}
+	else if (this->extractTagKey() > element.extractTagKey())
+	{
+		return 2;
+	}
+	else
+	{
+		return 3;
+	}
 }

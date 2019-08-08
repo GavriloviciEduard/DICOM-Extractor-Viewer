@@ -1,7 +1,7 @@
 #include "DICOMViewer.h"
 #include <fstream>
 
-#define SPACE "--"
+#define SPACE "  "
 
 DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 {
@@ -55,10 +55,7 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 	{
 		CompareDialog* dialog = new CompareDialog(nullptr);
 		dialog->exec();
-	}
-	else if (option == "Refresh")
-	{
-		repopulate(elements);
+		delete dialog;
 	}
 
 	else if (option == "Save as")
@@ -657,6 +654,7 @@ void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 			}
 		}
 	}
+	delete editDialog;
 }
 
 //========================================================================================================================
@@ -760,6 +758,7 @@ void DICOMViewer::insertClicked()
 {
 	TagSelectDialog* dialog = new TagSelectDialog(nullptr);
 	dialog->populate();
+
 	if (dialog->exec() == QDialog::Accepted)
 	{
 		DcmWidgetElement insertElement = dialog->getElement();
@@ -842,8 +841,6 @@ void DICOMViewer::insertClicked()
 			}
 		}
 	}
-	else
-	{
 
-	}
+	delete dialog;
 }

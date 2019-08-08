@@ -40,4 +40,8 @@ class DcmWidgetElement
 		void calculateDepthFromTag();
 		static int hexToDecimal(const char* hex);
 		bool operator==(DcmWidgetElement &element);
+		bool operator>(DcmWidgetElement &element);
+		bool operator<(DcmWidgetElement &element);
+
+		int compareTagKey(DcmWidgetElement &element);
 };

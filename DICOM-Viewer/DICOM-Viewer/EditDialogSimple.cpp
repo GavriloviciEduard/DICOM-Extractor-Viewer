@@ -11,7 +11,7 @@ EditDialogSimple::EditDialogSimple(QDialog * parent)
 
 EditDialogSimple::~EditDialogSimple()
 {
-	delete this;
+	//delete this;
 }
 
 void EditDialogSimple::setDescription(QString& description)

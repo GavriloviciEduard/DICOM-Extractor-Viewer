@@ -6,16 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>780</width>
-    <height>357</height>
+    <width>1090</width>
+    <height>832</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Compare files</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="buttonLoad1">
        <property name="text">
@@ -24,73 +24,53 @@
       </widget>
      </item>
      <item>
-      <widget class="QTableWidget" name="tableWidget1">
-       <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::AdjustToContents</enum>
-       </property>
-       <attribute name="horizontalHeaderStretchLastSection">
-        <bool>true</bool>
-       </attribute>
-       <column>
-        <property name="text">
-         <string>Tag ID</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Length</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Value</string>
-        </property>
-       </column>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QPushButton" name="buttonLoad2">
+      <widget class="QPushButton" name="butonLoad2">
        <property name="text">
         <string>Load File</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QTableWidget" name="tableWidget2">
-       <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::AdjustToContents</enum>
-       </property>
-       <property name="selectionBehavior">
-        <enum>QAbstractItemView::SelectRows</enum>
-       </property>
-       <attribute name="horizontalHeaderStretchLastSection">
-        <bool>true</bool>
-       </attribute>
-       <attribute name="verticalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
-       <column>
-        <property name="text">
-         <string>Tag ID</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Length</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Value</string>
-        </property>
-       </column>
-      </widget>
-     </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="tableWidget1">
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     </property>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <column>
+      <property name="text">
+       <string>Tag ID</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Length</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Value</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Tag ID</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Length</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Value</string>
+      </property>
+     </column>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -113,18 +93,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonLoad2</sender>
+   <sender>butonLoad2</sender>
    <signal>clicked()</signal>
    <receiver>dialogCompare</receiver>
    <slot>loadFile2()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>590</x>
-     <y>20</y>
+     <x>574</x>
+     <y>27</y>
     </hint>
     <hint type="destinationlabel">
-     <x>780</x>
-     <y>70</y>
+     <x>774</x>
+     <y>88</y>
     </hint>
    </hints>
   </connection>

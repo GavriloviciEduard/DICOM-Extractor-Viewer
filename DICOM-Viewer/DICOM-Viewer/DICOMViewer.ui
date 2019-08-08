@@ -169,7 +169,6 @@
     <addaction name="actionClose"/>
     <addaction name="actionSave"/>
     <addaction name="actionCompare"/>
-    <addaction name="actionRefres"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>

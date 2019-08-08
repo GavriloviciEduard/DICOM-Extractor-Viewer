@@ -1,5 +1,7 @@
 #pragma once
-
+#ifdef _DEBUG
+#include "vld.h"
+#endif
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qmessagebox.h>
@@ -12,6 +14,7 @@
 #include "EditDialogSimple.h"
 #include "TagSelectDialog.h"
 #include "CompareDialog.h"
+
 
 class DICOMViewer : public QMainWindow
 {
