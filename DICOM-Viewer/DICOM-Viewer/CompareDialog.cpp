@@ -14,28 +14,21 @@ CompareDialog::CompareDialog(QDialog * parent)
 }
 
 //========================================================================================================================
-void CompareDialog::loadFile(DcmFileFormat* file, bool first)
+void CompareDialog::loadFile(DcmFileFormat* file, QString fileName, bool first)
 {
-	QString fileName = QFileDialog::getOpenFileName(this);
-
-	if (!fileName.isEmpty())
+	if (file->loadFile(fileName.toStdString().c_str()).good())
 	{
-		if (file->loadFile(fileName.toStdString().c_str()).good())
-		{
-			extractData(file);
-		}
-
-		else
-		{
-			this->alertFailed("Failed to open file!");
-		}
+		extractData(file);
+	}
+	else
+	{
+		this->alertFailed("Failed to open file!");
 	}
 
 	if (first)
 	{
 		ui.buttonLoad1->setText(fileName);
 	}
-
 	else
 	{
 		ui.butonLoad2->setText(fileName);
@@ -673,21 +666,29 @@ bool CompareDialog::isDelimitation(DcmWidgetElement & el)
 //========================================================================================================================
 void CompareDialog::loadFile1()
 {
-	clearTable();
-	firstFile = true;
-	elements1.clear();
-	loaded++;
-	this->loadFile(&file1, true);
+	QString fileName = QFileDialog::getOpenFileName(this);
+	if (!fileName.isEmpty())
+	{
+		clearTable();
+		firstFile = true;
+		elements1.clear();
+		loaded++;
+		this->loadFile(&file1, fileName, true);
+	}
 }
 
 //========================================================================================================================
 void CompareDialog::loadFile2()
 {
-	clearTable();
-	firstFile = false;
-	elements2.clear();
-	loaded++;
-	this->loadFile(&file2, false);
+	QString fileName = QFileDialog::getOpenFileName(this);
+	if (!fileName.isEmpty())
+	{
+		clearTable();
+		firstFile = false;
+		elements2.clear();
+		loaded++;
+		this->loadFile(&file2, fileName, false);
+	}
 }
 
 //========================================================================================================================

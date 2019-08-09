@@ -24,7 +24,7 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 
 	if (option == "Open")
 	{
-		QString fileName = QFileDialog::getOpenFileName(this);
+		QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"), tr(""), tr("DICOM File (*.dcm)"));
 
 		if (!fileName.isEmpty())
 		{
@@ -61,10 +61,13 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 
 	else if (option == "Save as")
 	{
-		QString fileName = QFileDialog::getSaveFileName(this);
-		if (!file.saveFile(fileName.toStdString().c_str()).good())
+		QString fileName = QFileDialog::getSaveFileName(this,tr("Save File"),tr(""), tr("DICOM File (*.dcm)"));
+		if (!fileName.isEmpty())
 		{
-			alertFailed("Failed to save!");
+			if (!file.saveFile(fileName.toStdString().c_str()).good())
+			{
+				alertFailed("Failed to save!");
+			}
 		}
 	}
 }
@@ -660,9 +663,11 @@ void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 	editDialog->setDescription(element.getItemDescription());
 	editDialog->exec();
 
+	element.calculateTableIndex(currentRow(element, ui.tableWidget->currentRow()), this->elements);
+
 	QList<DcmWidgetElement> list;
 	list.append(element);
-	generatePathToRoot(element, ui.tableWidget->currentRow(), &list);
+	generatePathToRoot(element, element.getTableIndex(), &list);
 
 	QString result = editDialog->getValue();
 
@@ -831,9 +836,10 @@ void DICOMViewer::insertClicked()
 		if (items.size())
 		{
 			DcmWidgetElement selectedElement = DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
+			selectedElement.calculateTableIndex(currentRow(selectedElement, ui.tableWidget->currentRow()), this->elements);
 			QList<DcmWidgetElement> list;
 			list.append(selectedElement);
-			generatePathToRoot(selectedElement, ui.tableWidget->currentRow(), &list);
+			generatePathToRoot(selectedElement, selectedElement.getTableIndex(), &list);
 
 			if (selectedElement.getItemVR() == "SQ" && insertElement.getItemVR() == "na")
 			{
@@ -908,11 +914,22 @@ void DICOMViewer::insertClicked()
 
 		else
 		{
-			if (!file.getDataset()->putAndInsertString(insertElement.extractTagKey(),insertElement.getItemValue().toStdString().c_str(),false).good())
+			if (insertElement.getItemVR() == "SQ")
+			{
+				if (!file.getDataset()->insertEmptyElement(insertElement.extractTagKey(), false).good())
+				{
+					alertFailed("Failed!");
+				}
+				else
+				{
+					clearTable();
+					extractData(file);
+				}
+			}
+			else if (!file.getDataset()->putAndInsertString(insertElement.extractTagKey(),insertElement.getItemValue().toStdString().c_str(),false).good())
 			{
 				alertFailed("Failed!");
 			}
-
 			else
 			{
 				clearTable();

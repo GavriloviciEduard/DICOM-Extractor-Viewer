@@ -72,12 +72,13 @@ void TagSelectDialog::okPressed()
 	{
 		DcmWidgetElement element = DcmWidgetElement(items[0]->text(), items[2]->text(), "", "", items[1]->text(), ui.lineEdit->text());
 
-		if (element.getItemValue().isEmpty() && element.getItemVR() != "na")
+		if (element.getItemValue().isEmpty() && element.getItemVR() != "na" && element.getItemVR() != "SQ")
 		{
 			QMessageBox* box = new QMessageBox();
 			box->setText("No value entered!");
 			box->setIcon(QMessageBox::Warning);
 			box->exec();
+			delete box;
 			this->reject();
 		}
 

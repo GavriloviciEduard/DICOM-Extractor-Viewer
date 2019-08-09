@@ -29,7 +29,7 @@ class CompareDialog : public QDialog
 		explicit CompareDialog(QDialog* parent);
 		~CompareDialog() { }
 
-		void loadFile(DcmFileFormat* file, bool first);
+		void loadFile(DcmFileFormat* file, QString fileName, bool first);
 		void alertFailed(std::string message);
 		void extractData(DcmFileFormat* file);
 		void insertInTable(DcmElement* element, DcmFileFormat* file);
