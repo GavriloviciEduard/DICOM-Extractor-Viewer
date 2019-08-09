@@ -53,6 +53,7 @@ class DICOMViewer : public QMainWindow
 		void generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements);
 		bool shouldModify(DcmWidgetElement element);
 		int currentRow(DcmWidgetElement element,const int& finalRow);
+		void precision(std::string& nr, const int& precision);
 
 	private slots:
 		void fileTriggered(QAction* qaction);

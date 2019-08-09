@@ -24,7 +24,7 @@
        <enum>Qt::ActionsContextMenu</enum>
       </property>
       <property name="showGrid">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <attribute name="verticalHeaderVisible">
        <bool>true</bool>

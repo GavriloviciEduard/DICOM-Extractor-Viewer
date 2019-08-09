@@ -11,6 +11,7 @@ CompareDialog::CompareDialog(QDialog * parent)
 	ui.tableWidget1->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.tableWidget1->setSelectionMode(QAbstractItemView::NoSelection);
 	ui.tableWidget1->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	ui.tableWidget1->setColumnWidth(2, ui.tableWidget1->columnWidth(2) * 3);
 }
 
 //========================================================================================================================
@@ -54,6 +55,7 @@ void CompareDialog::extractData(DcmFileFormat* file)
 	if (loaded >= 2)
 	{
 		merge();
+		populateTableElementsVector();
 	}
 
 	globalIndex = 0;
@@ -674,6 +676,9 @@ void CompareDialog::loadFile1()
 		elements1.clear();
 		loaded++;
 		this->loadFile(&file1, fileName, true);
+		std::string nr = std::to_string(getFileSize(fileName.toStdString()));
+		precision(nr, 2);
+		ui.labelSize1->setText("Size: " + QString::fromStdString(nr) + " MB");
 	}
 }
 
@@ -688,6 +693,9 @@ void CompareDialog::loadFile2()
 		elements2.clear();
 		loaded++;
 		this->loadFile(&file2, fileName, false);
+		std::string nr = std::to_string(getFileSize(fileName.toStdString()));
+		precision(nr, 2);
+		ui.labelSize2->setText("Size: " + QString::fromStdString(nr) + " MB");
 	}
 }
 
@@ -699,4 +707,102 @@ void CompareDialog::alertFailed(std::string message)
 	messageBox->setText(QString::fromStdString(message));
 	messageBox->exec();
 	delete messageBox;
+}
+
+void CompareDialog::populateTableElementsVector()
+{
+	this->tableElements.clear();
+	for (int i = 0; i < ui.tableWidget1->rowCount(); i++)
+	{
+		DcmWidgetElement el1 = DcmWidgetElement(ui.tableWidget1->item(i, 0)->text(), "", "", ui.tableWidget1->item(i, 1)->text(), "", ui.tableWidget1->item(i, 2)->text());
+		DcmWidgetElement el2 = DcmWidgetElement(ui.tableWidget1->item(i, 0)->text(), "", "", ui.tableWidget1->item(i, 3)->text(), "", ui.tableWidget1->item(i, 4)->text());
+		std::tuple<DcmWidgetElement, DcmWidgetElement> tuple = std::tuple<DcmWidgetElement, DcmWidgetElement>(el1, el2);
+		this->tableElements.push_back(tuple);
+	}
+}
+
+void CompareDialog::precision(std::string & nr, const int & precision)
+{
+	int len = 0;
+	bool ok = false;
+
+	for (auto l : nr)
+	{
+		len++;
+		if (l == '.')
+		{
+			ok = true;
+			len += 2;
+		}
+		if (ok)
+		{
+			break;
+		}
+	}
+	nr.resize(len);
+}
+
+double CompareDialog::getFileSize(std::string fileName)
+{
+	std::ifstream in_file(fileName, std::ios::binary | std::ios::ate);
+	double size = in_file.tellg() / 1024;
+	size /= 1024;
+	in_file.close();
+	return size;
+}
+
+void CompareDialog::findText()
+{
+	QString text = ui.lineSearch->text();
+	if (!text.isEmpty())
+	{
+		if (this->tableElements.size())
+		{
+			std::vector<std::tuple<DcmWidgetElement, DcmWidgetElement>> result;
+			for (auto tuple : this->tableElements)
+			{
+				if (std::get<0>(tuple).checkIfContains(text) || std::get<1>(tuple).checkIfContains(text))
+				{
+					result.push_back(tuple);
+				}
+			}
+
+			clearTable();
+			for (int i = 0; i < result.size(); i++)
+			{
+				ui.tableWidget1->insertRow(i);
+				ui.tableWidget1->setItem(i, 0, new QTableWidgetItem(std::get<0>(result[i]).getItemTag()));
+				ui.tableWidget1->setItem(i, 1, new QTableWidgetItem(std::get<0>(result[i]).getItemLength()));
+				ui.tableWidget1->setItem(i, 2, new QTableWidgetItem(std::get<0>(result[i]).getItemValue()));
+				ui.tableWidget1->setItem(i, 3, new QTableWidgetItem(std::get<1>(result[i]).getItemLength()));
+				ui.tableWidget1->setItem(i, 4, new QTableWidgetItem(std::get<1>(result[i]).getItemValue()));
+
+				if (std::get<0>(result[i]).getItemValue() == "")
+				{
+					ui.tableWidget1->item(i, 0)->setBackgroundColor(QColor(220, 220, 220));
+					ui.tableWidget1->item(i, 3)->setBackgroundColor(QColor(104, 223, 240));
+					ui.tableWidget1->item(i, 4)->setBackgroundColor(QColor(104, 223, 240));
+				}
+				else if (std::get<1>(result[i]).getItemValue() == "")
+				{
+					ui.tableWidget1->item(i, 0)->setBackgroundColor(QColor(220, 220, 220));
+					ui.tableWidget1->item(i, 1)->setBackgroundColor(QColor(0, 250, 154));
+					ui.tableWidget1->item(i, 2)->setBackgroundColor(QColor(0, 250, 154));
+				}
+				else if (!(std::get<0>(result[i]) == std::get<1>(result[i])))
+				{
+					ui.tableWidget1->item(i, 0)->setBackgroundColor(QColor(220, 220, 220));
+					ui.tableWidget1->item(i, 1)->setBackgroundColor(QColor(250, 128, 114));
+					ui.tableWidget1->item(i, 2)->setBackgroundColor(QColor(250, 128, 114));
+					ui.tableWidget1->item(i, 3)->setBackgroundColor(QColor(250, 128, 114));
+					ui.tableWidget1->item(i, 4)->setBackgroundColor(QColor(250, 128, 114));
+				}
+			}
+		}
+	}
+	else
+	{
+		clearTable();
+		merge();
+	}
 }

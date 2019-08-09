@@ -38,7 +38,9 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 				ui.buttonInsert->setEnabled(true);
 				ui.tableWidget->resizeColumnsToContents();
 				this->setWindowTitle("Viewer - " + fileName);
-				ui.label->setText("Size: " + QString::fromStdString(std::to_string(getFileSize(fileName.toStdString())) + " MB"));
+				std::string nr = std::to_string(getFileSize(fileName.toStdString()));
+				precision(nr, 2);
+				ui.label->setText("Size: " + QString::fromStdString(nr) + " MB");
 			}
 			else
 			{
@@ -782,6 +784,31 @@ int DICOMViewer::currentRow(DcmWidgetElement element, const int& finalRow)
 	}
 
 	return index;
+
+}
+
+void DICOMViewer::precision(std::string & nr, const int & precision)
+{
+	int len = 0;
+	bool ok = false;
+
+	for (auto l : nr)
+	{
+		len++;
+
+		if (l == '.')
+		{
+			ok = true;
+			len += 2;
+		}
+
+		if (ok)
+		{
+			break;
+		}
+	}
+
+	nr.resize(len);
 
 }
 

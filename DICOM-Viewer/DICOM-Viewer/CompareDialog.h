@@ -20,6 +20,7 @@ class CompareDialog : public QDialog
 		std::vector<DcmWidgetElement> elements1;
 		std::vector<DcmWidgetElement> elements2;
 		std::vector<DcmWidgetElement> nestedElements;
+		std::vector<std::tuple<DcmWidgetElement, DcmWidgetElement>> tableElements;
 		int depthRE = 0;
 		int globalIndex = 0;
 		bool firstFile = false;
@@ -44,8 +45,12 @@ class CompareDialog : public QDialog
 		void merge();
 		void clearTable();
 		bool isDelimitation(DcmWidgetElement& el);
+		void populateTableElementsVector();
+		void precision(std::string& nr, const int& precision);
+		double getFileSize(std::string fileName);
 
 	private slots:
 		void loadFile1();
 		void loadFile2();
+		void findText();
 };
