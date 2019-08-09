@@ -1,6 +1,7 @@
 #pragma once
 #ifdef _DEBUG
 #include "vld.h"
+#pragma  comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
 #endif
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/qfiledialog.h>

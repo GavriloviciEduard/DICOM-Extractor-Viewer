@@ -1,5 +1,7 @@
 #include "CompareDialog.h"
 
+#define SPACE "  "
+
 CompareDialog::CompareDialog(QDialog * parent)
 {
 	ui.setupUi(this);
@@ -7,7 +9,7 @@ CompareDialog::CompareDialog(QDialog * parent)
 	ui.tableWidget1->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	ui.tableWidget1->verticalHeader()->setDefaultSectionSize(12);
 	ui.tableWidget1->setSelectionBehavior(QAbstractItemView::SelectRows);
-	ui.tableWidget1->setSelectionMode(QAbstractItemView::SingleSelection);
+	ui.tableWidget1->setSelectionMode(QAbstractItemView::NoSelection);
 	ui.tableWidget1->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
@@ -172,7 +174,7 @@ void CompareDialog::indent(DcmWidgetElement & element, int depth)
 	QString str = element.getItemTag();
 	while (depth--)
 	{
-		str.insert(0, "--");
+		str.insert(0, SPACE);
 	}
 
 	element.setItemTag(str);
@@ -304,17 +306,19 @@ void CompareDialog::insertBoth(DcmWidgetElement el1, DcmWidgetElement el2, int &
 		ui.tableWidget1->setItem(index, 0, new QTableWidgetItem(el1.getItemTag()));
 		ui.tableWidget1->setItem(index, 1, new QTableWidgetItem(el1.getItemLength()));
 		ui.tableWidget1->setItem(index, 2, new QTableWidgetItem(el1.getItemValue()));
-		ui.tableWidget1->setItem(index, 3, new QTableWidgetItem(el2.getItemTag()));
-		ui.tableWidget1->setItem(index, 4, new QTableWidgetItem(el2.getItemLength()));
-		ui.tableWidget1->setItem(index, 5, new QTableWidgetItem(el2.getItemValue()));
+		ui.tableWidget1->setItem(index, 3, new QTableWidgetItem(el2.getItemLength()));
+		ui.tableWidget1->setItem(index, 4, new QTableWidgetItem(el2.getItemValue()));
 		if (!(el1 == el2))
 		{
-			ui.tableWidget1->item(index, 0)->setBackgroundColor(QColor(255, 228, 225));
-			ui.tableWidget1->item(index, 1)->setBackgroundColor(QColor(255, 228, 225));
-			ui.tableWidget1->item(index, 2)->setBackgroundColor(QColor(255, 228, 225));
-			ui.tableWidget1->item(index, 3)->setBackgroundColor(QColor(255, 228, 225));
-			ui.tableWidget1->item(index, 4)->setBackgroundColor(QColor(255, 228, 225));
-			ui.tableWidget1->item(index, 5)->setBackgroundColor(QColor(255, 228, 225));
+			ui.tableWidget1->item(index, 0)->setBackgroundColor(QColor(220, 220, 220));
+			ui.tableWidget1->item(index, 1)->setBackgroundColor(QColor(250, 128, 114));
+			ui.tableWidget1->item(index, 2)->setBackgroundColor(QColor(250, 128, 114));
+			ui.tableWidget1->item(index, 3)->setBackgroundColor(QColor(250, 128, 114));
+			ui.tableWidget1->item(index, 4)->setBackgroundColor(QColor(250, 128, 114));
+		}
+		else
+		{
+			ui.tableWidget1->item(index, 0)->setBackgroundColor(QColor(220, 220, 220));
 		}
 	}
 	else if (status == 2)
@@ -322,22 +326,20 @@ void CompareDialog::insertBoth(DcmWidgetElement el1, DcmWidgetElement el2, int &
 		ui.tableWidget1->setItem(index, 0, new QTableWidgetItem(el1.getItemTag()));
 		ui.tableWidget1->setItem(index, 1, new QTableWidgetItem(el1.getItemLength()));
 		ui.tableWidget1->setItem(index, 2, new QTableWidgetItem(el1.getItemValue()));
-		ui.tableWidget1->setItem(index, 3, new QTableWidgetItem(el2.getItemTag()));
-		ui.tableWidget1->setItem(index, 4, new QTableWidgetItem(el2.getItemLength()));
-		ui.tableWidget1->setItem(index, 5, new QTableWidgetItem(el2.getItemValue()));
+		ui.tableWidget1->setItem(index, 3, new QTableWidgetItem(el2.getItemLength()));
+		ui.tableWidget1->setItem(index, 4, new QTableWidgetItem(el2.getItemValue()));
+		ui.tableWidget1->item(index, 0)->setBackgroundColor(QColor(220, 220, 220));
 		ui.tableWidget1->item(index, 3)->setBackgroundColor(QColor(104, 223, 240));
 		ui.tableWidget1->item(index, 4)->setBackgroundColor(QColor(104, 223, 240));
-		ui.tableWidget1->item(index, 5)->setBackgroundColor(QColor(104, 223, 240));
 	}
 	else
 	{
 		ui.tableWidget1->setItem(index, 0, new QTableWidgetItem(el1.getItemTag()));
 		ui.tableWidget1->setItem(index, 1, new QTableWidgetItem(el1.getItemLength()));
 		ui.tableWidget1->setItem(index, 2, new QTableWidgetItem(el1.getItemValue()));
-		ui.tableWidget1->setItem(index, 3, new QTableWidgetItem(el2.getItemTag()));
-		ui.tableWidget1->setItem(index, 4, new QTableWidgetItem(el2.getItemLength()));
-		ui.tableWidget1->setItem(index, 5, new QTableWidgetItem(el2.getItemValue()));
-		ui.tableWidget1->item(index, 0)->setBackgroundColor(QColor(0, 250, 154));
+		ui.tableWidget1->setItem(index, 3, new QTableWidgetItem(el2.getItemLength()));
+		ui.tableWidget1->setItem(index, 4, new QTableWidgetItem(el2.getItemValue()));
+		ui.tableWidget1->item(index, 0)->setBackgroundColor(QColor(220, 220, 220));
 		ui.tableWidget1->item(index, 1)->setBackgroundColor(QColor(0, 250, 154));
 		ui.tableWidget1->item(index, 2)->setBackgroundColor(QColor(0, 250, 154));
 	}
@@ -477,6 +479,12 @@ void CompareDialog::merge()
 		int index2 = 0;
 		while (index1 < elements1.size() - 1 && index2 < elements2.size() - 1)
 		{
+			if (elements1[index1].getItemTag() == "(0019,0010)" || elements2[index2].getItemTag() == "(0019,0010)")
+			{
+				std::cout << elements1[index1].getItemTag().toStdString();
+				std::cout << elements2[index2].getItemTag().toStdString();
+			}
+
 			if (elements1[index1].getItemVR() == "SQ" && elements2[index2].getItemVR() == "SQ")
 			{
 				if (elements1[index1].compareTagKey(elements2[index2]) == 3)

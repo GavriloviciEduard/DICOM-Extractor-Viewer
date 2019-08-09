@@ -323,6 +323,10 @@ DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfIt
 
 		return widgetElement;
 	}
+	else
+	{
+		return DcmWidgetElement();
+	}
 }
 
 //========================================================================================================================
