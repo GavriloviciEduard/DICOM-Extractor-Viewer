@@ -1,8 +1,9 @@
 #pragma once
-#ifdef _DEBUG
-#include "vld.h"
-#pragma  comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
-#endif
+
+//#ifdef _DEBUG
+//#include "vld.h"
+//#pragma  comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+//#endif
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qmessagebox.h>
@@ -41,19 +42,13 @@ class DICOMViewer : public QMainWindow
 		void clearTable();
 		void alertFailed(std::string message);
 		void indent(DcmWidgetElement& element, int depth);
-		DcmWidgetElement createElement(
-			DcmElement* element = nullptr, 
-			DcmSequenceOfItems* sequence = nullptr, 
-			DcmItem* item = nullptr);
+		DcmWidgetElement createElement(DcmElement* element = nullptr, DcmSequenceOfItems* sequence = nullptr, DcmItem* item = nullptr);
 		void insert(DcmWidgetElement element, int &index);
 		double getFileSize(std::string fileName);
-
 		void  getTagKeyOfSequence(DcmTagKey key, int row, DcmTagKey* returnKey, int* numberInSequence);
-
 		bool deleteElementFromFile(DcmSequenceOfItems* sequence, DcmWidgetElement element, QList<DcmWidgetElement> list);
 		bool modifyValue(DcmSequenceOfItems* sequence, DcmWidgetElement element, QList<DcmWidgetElement> list, QString value);
 		bool insertElement(DcmSequenceOfItems* sequence, DcmWidgetElement element, DcmWidgetElement insertElement, QList<DcmWidgetElement> list);
-
 		void createSimpleEditDialog(DcmWidgetElement element);
 		void generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements);
 		bool shouldModify(DcmWidgetElement element);

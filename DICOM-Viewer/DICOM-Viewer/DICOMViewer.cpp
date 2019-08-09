@@ -51,6 +51,7 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 	{
 		this->clearTable();
 	}
+
 	else if (option == "Compare")
 	{
 		CompareDialog* dialog = new CompareDialog(nullptr);
@@ -115,13 +116,10 @@ void DICOMViewer::insertInTable(DcmElement* element)
 	{
 		DcmWidgetElement widgetElement = createElement(element,nullptr,nullptr);
 		widgetElement.setItemTag(widgetElement.getItemTag().toUpper());
-
 		this->insert(widgetElement, globalIndex);
-
 		DcmWidgetElement copyElement = DcmWidgetElement(widgetElement);
 		copyElement.setTableIndex(globalIndex);
 		this->elements.push_back(copyElement);
-
 		this->globalIndex++;
 	}
 }
@@ -149,6 +147,7 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence
 	OFCondition cond = OFCondition(EC_CorruptedData);
 	if (tag.hasValidGroup())
 		cond = file.getDataset()->findAndGetSequence(tag, sequence, true);
+
 	if (cond.good() || (sequence != nullptr &&  sequence->card()))
 	{
 		DcmWidgetElement widgetElement1 = createElement(nullptr, sequence, nullptr);
@@ -156,6 +155,7 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence
 		widgetElement1.setItemTag(widgetElement1.getItemTag().toUpper());
 		this->nestedElements.push_back(widgetElement1);
 		this->depthRE++;
+
 		for (int i = 0; i < sequence->card(); i++)
 		{
 			DcmWidgetElement widgetElement2 = createElement(nullptr, nullptr, sequence->getItem(i));
@@ -173,6 +173,7 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence
 			widgetElementDelim.setDepth(this->depthRE);
 			this->nestedElements.push_back(widgetElementDelim);
 		}
+
 		DcmWidgetElement widgetElementDelim = DcmWidgetElement(
 			QString("(FFFE,E0DD)"),
 			QString("??"),
@@ -190,6 +191,7 @@ void DICOMViewer::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence
 void DICOMViewer::iterateItem(DcmItem * item,int& depth)
 {
 	depth++;
+
 	for (int i = 0; i < item->getNumberOfValues(); i++)
 	{
 		DcmWidgetElement widgetElement = createElement(item->getElement(i), nullptr, nullptr);
@@ -200,6 +202,7 @@ void DICOMViewer::iterateItem(DcmItem * item,int& depth)
 			widgetElement.setDepth(depth);
 			this->nestedElements.push_back(widgetElement);
 		}
+
 		DcmTagKey NULLkey;
 		DcmSequenceOfItems* sequence;
 		item->getElement(i)->getParentItem()->findAndGetSequence(item->getElement(i)->getTag().getBaseTag(), sequence, true);
@@ -240,6 +243,7 @@ void DICOMViewer::alertFailed(std::string message)
 void DICOMViewer::indent(DcmWidgetElement & element, int depth)
 {
 	QString str = element.getItemTag();
+
 	while (depth--)
 	{
 		str.insert(0, SPACE);
@@ -278,6 +282,7 @@ DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfIt
 
 		return widgetElement;
 	}
+
 	else if (sequence)
 	{
 		DcmTagKey tagKey = DcmTagKey(
@@ -305,6 +310,7 @@ DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfIt
 
 		return widgetElement;
 	}
+
 	else if (item)
 	{
 		DcmTagKey tagKey = DcmTagKey(
@@ -323,6 +329,7 @@ DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfIt
 
 		return widgetElement;
 	}
+
 	else
 	{
 		return DcmWidgetElement();
@@ -355,6 +362,7 @@ double DICOMViewer::getFileSize(std::string fileName)
 void DICOMViewer::getTagKeyOfSequence(DcmTagKey key, int row, DcmTagKey* returnKey, int* numberInSequence)
 {
 	*numberInSequence = 0;
+
 	for (int i = row - 1; i >= 0; i--)
 	{
 		DcmWidgetElement element = DcmWidgetElement(
@@ -364,10 +372,12 @@ void DICOMViewer::getTagKeyOfSequence(DcmTagKey key, int row, DcmTagKey* returnK
 			ui.tableWidget->item(i, 3)->text(),
 			ui.tableWidget->item(i, 4)->text(),
 			ui.tableWidget->item(i, 5)->text());
+
 		if (element.getItemVR() == "na" && element.getItemDescription() == "Item")
 		{
 			(*numberInSequence)++;
 		}
+
 		if (element.getItemVR() == "SQ")
 		{
 			*returnKey = element.extractTagKey();
@@ -394,10 +404,12 @@ void DICOMViewer::findText()
 					result.push_back(element);
 				}
 			}
+
 			repopulate(result);
 			ui.tableWidget->scrollToTop();
 		}
 	}
+
 	else
 	{
 		repopulate(this->elements);
@@ -424,6 +436,7 @@ void DICOMViewer::tableClicked(int row, int collumn)
 			}
 		}
 	}
+
 	ui.buttonEdit->setEnabled(true);
 	ui.buttonDelete->setEnabled(true);
 }
@@ -439,7 +452,6 @@ void DICOMViewer::editClicked()
 {
 	QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
 
-
 	if (items.size())
 	{
 		DcmWidgetElement elementWidget =  DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
@@ -452,23 +464,29 @@ bool DICOMViewer::deleteElementFromFile(DcmSequenceOfItems* sequence, DcmWidgetE
 {
 	int count = -1;
 	int i = list.size() - 1;
+
 	while (i >= 0 && list[i].getItemVR() == "na")
 	{
 		count++;
 		i--;
 		list.removeLast();
 	}
+
 	if (list.size() == 0)
 	{
 		count--;
+
 		if (!sequence->getParentItem()->findAndDeleteSequenceItem(sequence->getTag().getBaseTag(), count).good())
 		{
 			alertFailed("Failed!");
 			return false;
 		}
+
 		return true;
 	}
+
 	DcmItem* item = sequence->getItem(count);
+
 	if (list[i] == element)
 	{
 		if (!item->findAndDeleteElement(element.extractTagKey(), false, false).good())
@@ -476,19 +494,23 @@ bool DICOMViewer::deleteElementFromFile(DcmSequenceOfItems* sequence, DcmWidgetE
 			alertFailed("Failed!");
 			return false;
 		}
+
 		else
 		{
 			return true;
 		}
 	}
+
 	else
 	{
 		DcmSequenceOfItems* seq;
+
 		if (item->findAndGetSequence(list[i].extractTagKey(), seq, false, false).good())
 		{
 			list.removeLast();
 			return deleteElementFromFile(seq, element, list);
 		}
+
 		else
 		{
 			alertFailed("Failed!");
@@ -502,42 +524,51 @@ bool DICOMViewer::modifyValue(DcmSequenceOfItems* sequence, DcmWidgetElement ele
 {
 	int count = -1;
 	int i = list.size() - 1;
+
 	while (list[i].getItemVR() == "na")
 	{
 		count++;
 		i--;
 		list.removeLast();
 	}
+
 	DcmItem* item = sequence->getItem(count);
+
 	if (list[i] == element)
 	{
 		DcmElement* el;
+
 		if (item->findAndGetElement(element.extractTagKey(), el, false, false).good())
 		{
 			if (el->putString(value.toStdString().c_str()).good())
 			{
 				return true;
 			}
+
 			else
 			{
 				alertFailed("Failed!");
 				return false;
 			}
 		}
+
 		else
 		{
 			alertFailed("Failed!");
 			return false;
 		}
 	}
+
 	else
 	{
 		DcmSequenceOfItems* seq;
+
 		if (item->findAndGetSequence(list[i].extractTagKey(), seq, false, false).good())
 		{
 			list.removeLast();
 			return modifyValue(seq, element, list, value);
 		}
+
 		else
 		{
 			alertFailed("Failed!");
@@ -551,24 +582,30 @@ bool DICOMViewer::insertElement(DcmSequenceOfItems * sequence, DcmWidgetElement 
 {
 	int count = -1;
 	int i = list.size() - 1;
+
 	while (i >= 0 && list[i].getItemVR() == "na")
 	{
 		count++;
 		i--;
 		list.removeLast();
 	}
+
 	if (list.size() == 0)
 	{
 		count--;
 		DcmItem* item = sequence->getItem(count);
+
 		if (!item->putAndInsertString(insertElement.extractTagKey(), insertElement.getItemValue().toStdString().c_str(), false).good())
 		{
 			alertFailed("Failed!");
 			return false;
 		}
+
 		return true;
 	}
+
 	DcmItem* item = sequence->getItem(count);
+
 	if (list[i] == element)
 	{
 		if (insertElement.getItemVR() == "na")
@@ -579,8 +616,10 @@ bool DICOMViewer::insertElement(DcmSequenceOfItems * sequence, DcmWidgetElement 
 				alertFailed("Failed!");
 				return false;
 			}
+
 			return true;
 		}
+
 		else
 		{
 			if (!item->putAndInsertString(insertElement.extractTagKey(), insertElement.getItemValue().toStdString().c_str(), false).good())
@@ -588,17 +627,21 @@ bool DICOMViewer::insertElement(DcmSequenceOfItems * sequence, DcmWidgetElement 
 				alertFailed("Failed!");
 				return false;
 			}
+
 			return true;
 		}
 	}
+
 	else
 	{
 		DcmSequenceOfItems* seq;
+
 		if (item->findAndGetSequence(list[i].extractTagKey(), seq, false, false).good())
 		{
 			list.removeLast();
 			return this->insertElement(seq, element, insertElement, list);
 		}
+
 		else
 		{
 			alertFailed("Failed");
@@ -622,14 +665,17 @@ void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 	generatePathToRoot(element, ui.tableWidget->currentRow(), &list);
 
 	QString result = editDialog->getValue();
+
 	if (!result.isEmpty())
 	{
 		if (list.size() > 1)
 		{
 			DcmSequenceOfItems* sequence;
+
 			if(file.getDataset()->findAndGetSequence(list[list.size() - 1].extractTagKey(),sequence,false,false).good())
 			{
 				list.removeLast();
+
 				if (modifyValue(sequence, element, list,result))
 				{
 					clearTable();
@@ -637,9 +683,11 @@ void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 				}
 			}
 		}
+
 		else
 		{
 			DcmElement* el;
+
 			if (file.getDataset()->findAndGetElement(element.extractTagKey(), el, false, false).good())
 			{
 				if (el->putString(result.toStdString().c_str()).good())
@@ -647,17 +695,20 @@ void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 					clearTable();
 					extractData(file);
 				}
+
 				else
 				{
 					alertFailed("Failed!");
 				}
 			}
+
 			else
 			{
 				alertFailed("Failed!");
 			}
 		}
 	}
+
 	delete editDialog;
 }
 
@@ -665,21 +716,26 @@ void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 void DICOMViewer::generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements)
 {
 	element.calculateDepthFromTag();
+
 	if (element.getDepth() == 0)
 	{
 		return;
 	}
+
 	DcmWidgetElement el = this->elements[row];
 	el.calculateDepthFromTag();
+
 	if (el.getItemVR() == "na" && el.getDepth() == element.getDepth())
 	{
 		(*elements).append(el);
 	}
+
 	if (el.getDepth() == element.getDepth() - 1)
 	{
 		(*elements).append(el);
 		generatePathToRoot(el, --row, elements);
 	}
+
 	else
 	{
 		generatePathToRoot(element, --row, elements);
@@ -734,12 +790,15 @@ void DICOMViewer::deleteClicked()
 	QList<DcmWidgetElement> list;
 	list.append(element);
 	generatePathToRoot(element, element.getTableIndex(), &list);
+
 	if (list.size() > 1)
 	{
 		DcmSequenceOfItems* sequence;
+
 		if (file.getDataset()->findAndGetSequence(list[list.size() - 1].extractTagKey(), sequence, false, false).good())
 		{
 			list.removeLast();
+
 			if (deleteElementFromFile(sequence, element, list))
 			{
 				clearTable();
@@ -747,6 +806,7 @@ void DICOMViewer::deleteClicked()
 			}
 		}
 	}
+
 	else
 	{
 		if (file.getDataset()->findAndDeleteElement(element.extractTagKey(), false, false).good())
@@ -767,33 +827,40 @@ void DICOMViewer::insertClicked()
 	{
 		DcmWidgetElement insertElement = dialog->getElement();
 		QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
+
 		if (items.size())
 		{
 			DcmWidgetElement selectedElement = DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
 			QList<DcmWidgetElement> list;
 			list.append(selectedElement);
 			generatePathToRoot(selectedElement, ui.tableWidget->currentRow(), &list);
+
 			if (selectedElement.getItemVR() == "SQ" && insertElement.getItemVR() == "na")
 			{
 				DcmSequenceOfItems* sequence;
+
 				if (file.getDataset()->findAndGetSequence(list[list.size() - 1].extractTagKey(), sequence, false, false).good())
 				{
 					if (list.size() == 1)
 					{
 						DcmItem* it = new DcmItem(DcmTag(insertElement.extractTagKey()));
+
 						if (!file.getDataset()->insertSequenceItem(sequence->getTag().getBaseTag(), it).good())
 						{
 							alertFailed("Failed!");
 						}
+
 						else
 						{
 							clearTable();
 							extractData(file);
 						}
 					}
+
 					else
 					{
 						list.removeLast();
+
 						if (this->insertElement(sequence, selectedElement, insertElement, list))
 						{
 							clearTable();
@@ -802,12 +869,15 @@ void DICOMViewer::insertClicked()
 					}
 				}
 			}
+
 			else if (selectedElement.getItemVR() == "na")
 			{
 				DcmSequenceOfItems* sequence;
+
 				if (file.getDataset()->findAndGetSequence(list[list.size() - 1].extractTagKey(), sequence, false, false).good())
 				{
 					list.removeLast();
+
 					if (this->insertElement(sequence, selectedElement, insertElement, list))
 					{
 						clearTable();
@@ -815,16 +885,19 @@ void DICOMViewer::insertClicked()
 					}
 				}
 			}
+
 			else if (selectedElement.getItemVR() == "SQ" && insertElement.getItemVR() != "na")
 			{
 				alertFailed("Can only insert items in sequence!");
 			}
+
 			else
 			{
 				if (!file.getDataset()->putAndInsertString(insertElement.extractTagKey(), insertElement.getItemValue().toStdString().c_str(), false).good())
 				{
 					alertFailed("Failed!");
 				}
+
 				else
 				{
 					clearTable();
@@ -832,12 +905,14 @@ void DICOMViewer::insertClicked()
 				}
 			}
 		}
+
 		else
 		{
 			if (!file.getDataset()->putAndInsertString(insertElement.extractTagKey(),insertElement.getItemValue().toStdString().c_str(),false).good())
 			{
 				alertFailed("Failed!");
 			}
+
 			else
 			{
 				clearTable();

@@ -11,16 +11,19 @@ TagSelectDialog::TagSelectDialog(QDialog * parent)
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
+//========================================================================================================================
 TagSelectDialog::~TagSelectDialog()
 {
 	clearTable();
 }
 
+//========================================================================================================================
 DcmWidgetElement TagSelectDialog::getElement()
 {
 	return this->element;
 }
 
+//========================================================================================================================
 void TagSelectDialog::clearTable()
 {
 	for (int i = ui.tableWidget->rowCount() - 1; i >= 0; i--)
@@ -29,12 +32,14 @@ void TagSelectDialog::clearTable()
 	}
 }
 
+//========================================================================================================================
 void TagSelectDialog::populate()
 {
 	DcmDataDictionary* dictionary = new DcmDataDictionary(true,false);
 	DcmHashDictIterator iterStart = dictionary->normalBegin();
 	DcmHashDictIterator iterEnd = dictionary->normalEnd();
 	int count = 0;
+
 	while (iterStart != iterEnd)
 	{
 		const DcmDictEntry* item = *iterStart;
@@ -50,18 +55,23 @@ void TagSelectDialog::populate()
 			ui.tableWidget->setItem(count, 2, new QTableWidgetItem(vr));
 			count++;
 		}
+
 		iterStart++;
 	}
+
 	ui.tableWidget->resizeColumnsToContents();
 	delete dictionary;
 }
 
+//========================================================================================================================
 void TagSelectDialog::okPressed()
 {
 	QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
+
 	if (items.size())
 	{
 		DcmWidgetElement element = DcmWidgetElement(items[0]->text(), items[2]->text(), "", "", items[1]->text(), ui.lineEdit->text());
+
 		if (element.getItemValue().isEmpty() && element.getItemVR() != "na")
 		{
 			QMessageBox* box = new QMessageBox();
@@ -70,26 +80,31 @@ void TagSelectDialog::okPressed()
 			box->exec();
 			this->reject();
 		}
+
 		this->element = element;
 		this->accept();
 	}
 }
 
+//========================================================================================================================
 void TagSelectDialog::cancelPressed()
 {
 	this->reject();
 }
 
+//========================================================================================================================
 void TagSelectDialog::findText()
 {
 	QString text = ui.lineEditSearch->text();
 	std::vector<DcmWidgetElement> result;
+
 	if (!text.isEmpty())
 	{
 		std::unique_ptr <DcmDataDictionary> dictionary = std::make_unique<DcmDataDictionary>(true, false);
 		DcmHashDictIterator iterStart = dictionary->normalBegin();
 		DcmHashDictIterator iterEnd = dictionary->normalEnd();
 		int count = 0;
+
 		while (iterStart != iterEnd)
 		{
 			const DcmDictEntry* item = *iterStart;
@@ -102,11 +117,14 @@ void TagSelectDialog::findText()
 			{
 				result.push_back(element);
 			}
+
 			iterStart++;
 		}
+
 		if (result.size())
 		{
 			clearTable();
+
 			for (int i = 0; i < result.size(); i++)
 			{
 				if (result[i].getItemTag() != "(fffe,e00d)" &&result[i].getItemTag() != "(fffe,00dd)")
@@ -119,6 +137,7 @@ void TagSelectDialog::findText()
 			}
 		}
 	}
+
 	else
 	{
 		clearTable();

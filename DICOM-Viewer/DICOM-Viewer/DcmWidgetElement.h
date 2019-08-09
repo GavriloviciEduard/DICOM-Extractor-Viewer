@@ -29,7 +29,6 @@ class DcmWidgetElement
 		int getTableIndex();
 		int getDepth();
 		void calculateTableIndex(const int& current,const std::vector<DcmWidgetElement>& elements);
-
 		std::string toString();
 		void setDepth(const int& depth);
 		void setTableIndex(const int& index);
@@ -42,6 +41,5 @@ class DcmWidgetElement
 		bool operator==(DcmWidgetElement &element);
 		bool operator>(DcmWidgetElement &element);
 		bool operator<(DcmWidgetElement &element);
-
 		int compareTagKey(DcmWidgetElement &element);
 };

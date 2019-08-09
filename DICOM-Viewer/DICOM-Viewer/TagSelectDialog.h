@@ -1,4 +1,5 @@
 #pragma once
+
 #include <QObject>
 #include "ui_TagSelectDialog.h"
 #include <dcmtk/dcmdata/dcdict.h>
@@ -7,21 +8,23 @@
 
 class TagSelectDialog : public QDialog
 {
+
 	Q_OBJECT;
-private:
-	Ui::tagSelectDialog ui;
-	DcmWidgetElement element;
 
-public:
-	explicit TagSelectDialog(QDialog* parent);
-	~TagSelectDialog();
+	private:
+		Ui::tagSelectDialog ui;
+		DcmWidgetElement element;
 
-	DcmWidgetElement getElement();
-	void clearTable();
+	public:
+		explicit TagSelectDialog(QDialog* parent);
+		~TagSelectDialog();
 
-	void populate();
-private slots:
-	void okPressed();
-	void cancelPressed();
-	void findText();
+		DcmWidgetElement getElement();
+		void clearTable();
+		void populate();
+
+	private slots:
+		void okPressed();
+		void cancelPressed();
+		void findText();
 };

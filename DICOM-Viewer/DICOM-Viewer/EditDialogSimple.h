@@ -14,10 +14,9 @@ class EditDialogSimple : public QDialog
 
 	public:
 		explicit EditDialogSimple(QDialog* parent);
-		~EditDialogSimple();
+		~EditDialogSimple() { }
 		void setDescription(QString& description);
 		void setValue(QString& value);
-
 		QString getValue();
 
 	private slots:
