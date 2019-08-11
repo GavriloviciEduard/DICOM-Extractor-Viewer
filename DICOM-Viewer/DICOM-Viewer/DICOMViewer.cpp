@@ -15,6 +15,8 @@ DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 	ui.buttonDelete->setEnabled(false);
 	ui.buttonEdit->setEnabled(false);
 	ui.buttonInsert->setEnabled(false);
+	ui.tableWidget->horizontalHeader()->setStyleSheet("QHeaderView { font-weight: 2000; }");
+	ui.tableWidget->horizontalHeader()->setHighlightSections(false);
 }
 
 //========================================================================================================================
@@ -661,7 +663,7 @@ void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 	element.calculateDepthFromTag();
 	EditDialogSimple* editDialog = new EditDialogSimple(nullptr);
 	editDialog->setValue(element.getItemValue());
-	editDialog->setWindowTitle(element.getItemVR());
+	editDialog->setWindowTitle(element.getItemTag());
 	editDialog->setDescription(element.getItemDescription());
 	editDialog->exec();
 

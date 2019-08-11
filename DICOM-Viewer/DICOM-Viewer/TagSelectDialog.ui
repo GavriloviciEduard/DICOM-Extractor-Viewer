@@ -23,7 +23,7 @@
    <item>
     <widget class="QTableWidget" name="tableWidget">
      <property name="showGrid">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
@@ -33,7 +33,7 @@
      </attribute>
      <column>
       <property name="text">
-       <string>Tag Key</string>
+       <string>Tag ID</string>
       </property>
      </column>
      <column>

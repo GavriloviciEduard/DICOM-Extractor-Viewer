@@ -25,15 +25,6 @@ void CompareDialog::loadFile(DcmFileFormat* file, QString fileName, bool first)
 	{
 		this->alertFailed("Failed to open file!");
 	}
-
-	if (first)
-	{
-		ui.buttonLoad1->setText(fileName);
-	}
-	else
-	{
-		ui.butonLoad2->setText(fileName);
-	}
 }
 
 //========================================================================================================================
@@ -679,6 +670,7 @@ void CompareDialog::loadFile1()
 		std::string nr = std::to_string(getFileSize(fileName.toStdString()));
 		precision(nr, 2);
 		ui.labelSize1->setText("Size: " + QString::fromStdString(nr) + " MB");
+		ui.labelPath1->setText("Path: " + fileName);
 	}
 }
 
@@ -696,6 +688,7 @@ void CompareDialog::loadFile2()
 		std::string nr = std::to_string(getFileSize(fileName.toStdString()));
 		precision(nr, 2);
 		ui.labelSize2->setText("Size: " + QString::fromStdString(nr) + " MB");
+		ui.labelPath2->setText("Path: " + fileName);
 	}
 }
 
