@@ -1,9 +1,11 @@
 #pragma once
 
-/*#ifdef _DEBUG
-#include "vld.h"
-#pragma  comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
-#endif*/
+//#ifdef _DEBUG
+//#include "vld.h"
+//#pragma  comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+//#endif
+
+
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qmessagebox.h>
@@ -24,6 +26,7 @@ class DICOMViewer : public QMainWindow
 
 	public:
 		DICOMViewer(QWidget *parent = Q_NULLPTR);
+		~DICOMViewer() {  }
 
 	private:
 		Ui::DICOMViewerClass ui;
@@ -32,6 +35,9 @@ class DICOMViewer : public QMainWindow
 		std::vector<DcmWidgetElement> nestedElements;
 		int globalIndex = 0;
 		int depthRE = 0;
+		QModelIndex scrollPosition;
+		CompareDialog* dialog;
+	
 
 	private:
 		void insertInTable(DcmElement* element);
@@ -54,6 +60,7 @@ class DICOMViewer : public QMainWindow
 		bool shouldModify(DcmWidgetElement element);
 		int currentRow(DcmWidgetElement element,const int& finalRow);
 		void precision(std::string& nr, const int& precision);
+
 
 	private slots:
 		void fileTriggered(QAction* qaction);

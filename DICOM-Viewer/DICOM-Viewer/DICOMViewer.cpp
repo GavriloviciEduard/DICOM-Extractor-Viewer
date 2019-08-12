@@ -9,7 +9,7 @@ DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 	ui.tableWidget->horizontalHeader()->setStretchLastSection(true);
 	ui.tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui.tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-	ui.tableWidget->verticalHeader()->setDefaultSectionSize(12);
+	ui.tableWidget->verticalHeader()->setDefaultSectionSize(15);
 	ui.tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 	ui.buttonDelete->setEnabled(false);
@@ -17,6 +17,7 @@ DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 	ui.buttonInsert->setEnabled(false);
 	ui.tableWidget->horizontalHeader()->setStyleSheet("QHeaderView { font-weight: 2000; }");
 	ui.tableWidget->horizontalHeader()->setHighlightSections(false);
+
 }
 
 //========================================================================================================================
@@ -35,11 +36,9 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 				ui.tableWidget->scrollToTop();
 				this->clearTable();
 				this->extractData(file);
-				ui.buttonDelete->setEnabled(true);
-				ui.buttonEdit->setEnabled(true);
-				ui.buttonInsert->setEnabled(true);
 				ui.tableWidget->resizeColumnsToContents();
-				this->setWindowTitle("Viewer - " + fileName);
+				this->setWindowTitle("PixelData DICOM Editor - " + fileName);
+				ui.buttonInsert->setEnabled(true);
 				std::string nr = std::to_string(getFileSize(fileName.toStdString()));
 				precision(nr, 2);
 				ui.label->setText("Size: " + QString::fromStdString(nr) + " MB");
@@ -54,13 +53,13 @@ void DICOMViewer::fileTriggered(QAction* qaction)
 	else if(option == "Close")
 	{
 		this->clearTable();
+		
 	}
 
 	else if (option == "Compare")
 	{
-		CompareDialog* dialog = new CompareDialog(nullptr);
-		dialog->exec();
-		delete dialog;
+		this->dialog = new CompareDialog(nullptr);
+		dialog->show();
 	}
 
 	else if (option == "Save as")
@@ -91,6 +90,7 @@ void DICOMViewer::extractData(DcmFileFormat file)
 	{
 		this->insertInTable(dataSet->getElement(i));
 	}
+
 }
 
 //========================================================================================================================
@@ -143,9 +143,10 @@ void DICOMViewer::repopulate(std::vector<DcmWidgetElement> source)
 	for (int i = 0; i < source.size(); i++)
 	{
 		DcmWidgetElement element = DcmWidgetElement(source[i]);
-
+		
 		this->insert(element, i);
 	}
+	
 }
 
 //========================================================================================================================
@@ -226,13 +227,23 @@ void DICOMViewer::clearTable()
 		this->elements.clear();
 		this->globalIndex = 0;
 
+
+		QList<QTableWidgetItem *> list = ui.tableWidget->selectedItems();
+		
+		if (list.size())
+		{
+			QTableWidgetItem *foundItem = list[0];
+			this->scrollPosition = ui.tableWidget->model()->index(foundItem->row(), foundItem->column());\
+		}
+
+
 		for (int i = ui.tableWidget->rowCount(); i >= 0; i--)
 		{
 			ui.tableWidget->removeRow(i);
 		}
 
 		ui.lineEdit->clear();
-		this->setWindowTitle("Viewer");
+		this->setWindowTitle("PixelData DICOM Editor");
 	}
 }
 
@@ -435,17 +446,28 @@ void DICOMViewer::tableClicked(int row, int collumn)
 	{
 		for (auto elementV : this->elements)
 		{
-			if (element == elementV && !shouldModify(element))
+			if ( (element == elementV && !shouldModify(element)) )
 			{
+
 				ui.buttonEdit->setEnabled(false);
 				ui.buttonDelete->setEnabled(false);
+				ui.buttonInsert->setEnabled(false);
+				return;
+			}
+		
+			else if (element == elementV && elementV.getItemVR() != "SQ" && elementV.getItemVR() != "na" && elementV.getDepth() != -1)
+			{
+				ui.buttonInsert->setEnabled(false);
 				return;
 			}
 		}
+
+
 	}
 
 	ui.buttonEdit->setEnabled(true);
 	ui.buttonDelete->setEnabled(true);
+	ui.buttonInsert->setEnabled(true);
 }
 
 //========================================================================================================================
@@ -463,6 +485,8 @@ void DICOMViewer::editClicked()
 	{
 		DcmWidgetElement elementWidget =  DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
 		this->createSimpleEditDialog(elementWidget);
+		ui.tableWidget->scrollTo(this->scrollPosition, QAbstractItemView::PositionAtCenter);
+
 	}
 }
 
@@ -758,7 +782,8 @@ bool DICOMViewer::shouldModify(DcmWidgetElement element)
 	bool contains = false;
 	
 	if (element.getItemDescription() == "PhotometricInterpretation" || element.getItemDescription() =="Rows" || element.getItemDescription()== "Columns" || 
-		element.getItemDescription().toUpper().contains("PIXEL") || element.getItemDescription().toUpper().contains("FRAME") || element.getItemDescription().toUpper().contains("BIT"))
+		element.getItemDescription().toUpper().contains("PIXEL") || element.getItemDescription().toUpper().contains("FRAME") || element.getItemDescription().toUpper().contains("BIT") ||
+		element.getItemDescription()=="ItemDelimitationItem" || element.getItemDescription()=="SequenceDelimitationItem")
 		contains = true;
 
 	DcmTagKey tagKey = element.extractTagKey();
@@ -814,6 +839,7 @@ void DICOMViewer::precision(std::string & nr, const int & precision)
 
 }
 
+
 //========================================================================================================================
 void DICOMViewer::deleteClicked()
 {
@@ -849,6 +875,9 @@ void DICOMViewer::deleteClicked()
 			extractData(file);
 		}
 	}
+
+	ui.tableWidget->scrollTo(this->scrollPosition, QAbstractItemView::PositionAtCenter);
+
 }
 
 //========================================================================================================================
@@ -864,6 +893,8 @@ void DICOMViewer::insertClicked()
 
 		if (items.size())
 		{
+			
+
 			DcmWidgetElement selectedElement = DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
 			selectedElement.calculateTableIndex(currentRow(selectedElement, ui.tableWidget->currentRow()), this->elements);
 			QList<DcmWidgetElement> list;
@@ -889,6 +920,7 @@ void DICOMViewer::insertClicked()
 						{
 							clearTable();
 							extractData(file);
+							ui.tableWidget->scrollTo(this->scrollPosition, QAbstractItemView::PositionAtCenter);
 						}
 					}
 
@@ -900,9 +932,11 @@ void DICOMViewer::insertClicked()
 						{
 							clearTable();
 							extractData(file);
+							ui.tableWidget->scrollTo(this->scrollPosition, QAbstractItemView::PositionAtCenter);
 						}
 					}
 				}
+
 			}
 
 			else if (selectedElement.getItemVR() == "na")
@@ -917,8 +951,11 @@ void DICOMViewer::insertClicked()
 					{
 						clearTable();
 						extractData(file);
+						ui.tableWidget->scrollTo(this->scrollPosition, QAbstractItemView::PositionAtCenter);
+
 					}
 				}
+
 			}
 
 			else if (selectedElement.getItemVR() == "SQ" && insertElement.getItemVR() != "na")

@@ -2,16 +2,15 @@
 
 #define SPACE "  "
 
-CompareDialog::CompareDialog(QDialog * parent)
+CompareDialog::CompareDialog(QWidget * parent)
 {
 	ui.setupUi(this);
-	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	ui.tableWidget1->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-	ui.tableWidget1->verticalHeader()->setDefaultSectionSize(12);
+	ui.tableWidget1->verticalHeader()->setDefaultSectionSize(14);
 	ui.tableWidget1->setSelectionBehavior(QAbstractItemView::SelectRows);
-	ui.tableWidget1->setSelectionMode(QAbstractItemView::NoSelection);
 	ui.tableWidget1->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui.tableWidget1->setColumnWidth(2, ui.tableWidget1->columnWidth(2) * 3);
+	this->setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 //========================================================================================================================
@@ -660,6 +659,7 @@ bool CompareDialog::isDelimitation(DcmWidgetElement & el)
 void CompareDialog::loadFile1()
 {
 	QString fileName = QFileDialog::getOpenFileName(this);
+
 	if (!fileName.isEmpty())
 	{
 		clearTable();
@@ -678,6 +678,7 @@ void CompareDialog::loadFile1()
 void CompareDialog::loadFile2()
 {
 	QString fileName = QFileDialog::getOpenFileName(this);
+
 	if (!fileName.isEmpty())
 	{
 		clearTable();

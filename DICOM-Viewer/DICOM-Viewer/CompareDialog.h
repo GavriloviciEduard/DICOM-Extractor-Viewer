@@ -9,7 +9,7 @@
 #include "dcmtk/dcmdata/dcmetinf.h"
 #include "dcmtk/dcmdata/dctagkey.h"
 
-class CompareDialog : public QDialog
+class CompareDialog : public QWidget
 {
 	Q_OBJECT;
 
@@ -27,8 +27,8 @@ class CompareDialog : public QDialog
 		int loaded = 0;
 
 	public:
-		explicit CompareDialog(QDialog* parent);
-		~CompareDialog() { }
+		explicit CompareDialog(QWidget* parent);
+		~CompareDialog() {  }
 
 		void loadFile(DcmFileFormat* file, QString fileName, bool first);
 		void alertFailed(std::string message);
