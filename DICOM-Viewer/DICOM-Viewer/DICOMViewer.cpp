@@ -500,6 +500,7 @@ void DICOMViewer::editClicked()
 		DcmWidgetElement elementWidget =  DcmWidgetElement(items[0]->text(), items[1]->text(), items[2]->text(), items[3]->text(), items[4]->text(), items[5]->text());
 		this->createSimpleEditDialog(elementWidget);
 		ui.tableWidget->scrollTo(this->scrollPosition, QAbstractItemView::PositionAtCenter);
+		
 		ui.tableWidget->selectRow(this->scrollPosition.row());
 
 	}
