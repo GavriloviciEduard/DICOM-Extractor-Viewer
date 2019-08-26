@@ -4,8 +4,7 @@
 EditDialogSimple::EditDialogSimple(QDialog * parent)
 {
 	ui.setupUi(this); 
-	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-	this->layout()-> setSizeConstraint(QLayout::SetFixedSize);
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint | Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 }
 
 //========================================================================================================================

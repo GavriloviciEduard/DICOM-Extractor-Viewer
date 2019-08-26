@@ -6,33 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1106</width>
-    <height>832</height>
+    <width>1024</width>
+    <height>768</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Compare files</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="Resource.qrc">
+    <normaloff>:/IconGUI/rsc/pxd_app_icon.png</normaloff>:/IconGUI/rsc/pxd_app_icon.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
       <widget class="QPushButton" name="buttonLoad1">
        <property name="text">
-        <string>Load File</string>
+        <string>Load File 1</string>
        </property>
       </widget>
      </item>
@@ -41,22 +32,12 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_14">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>422</width>
          <height>20</height>
         </size>
        </property>
@@ -65,7 +46,7 @@
      <item>
       <widget class="QPushButton" name="butonLoad2">
        <property name="text">
-        <string>Load File</string>
+        <string>Load File 2</string>
        </property>
       </widget>
      </item>
@@ -86,20 +67,7 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
-     <item>
-      <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QLabel" name="labelPath1">
        <property name="layoutDirection">
         <enum>Qt::LeftToRight</enum>
@@ -118,33 +86,7 @@
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_15">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_9">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
+     <item alignment="Qt::AlignLeft|Qt::AlignVCenter">
       <widget class="QLabel" name="labelPath2">
        <property name="text">
         <string/>
@@ -157,36 +99,10 @@
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_10">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
     </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <spacer name="horizontalSpacer_11">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
      <item>
       <widget class="QLabel" name="labelSize1">
        <property name="text">
@@ -194,51 +110,12 @@
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_16">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_12">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
+     <item alignment="Qt::AlignLeft|Qt::AlignVCenter">
       <widget class="QLabel" name="labelSize2">
        <property name="text">
         <string/>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_13">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
@@ -405,7 +282,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="Resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonLoad1</sender>

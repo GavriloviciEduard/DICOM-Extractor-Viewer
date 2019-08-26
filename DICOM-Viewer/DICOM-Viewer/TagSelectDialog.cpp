@@ -9,6 +9,10 @@ TagSelectDialog::TagSelectDialog(QDialog * parent)
 	ui.tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+	QHeaderView *verticalHeader = ui.tableWidget->verticalHeader();
+	verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
+	verticalHeader->setDefaultSectionSize(10);
 }
 
 //========================================================================================================================

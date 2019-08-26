@@ -6,64 +6,133 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>295</width>
-    <height>105</height>
+    <width>297</width>
+    <height>109</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="Resource.qrc">
+    <normaloff>:/IconGUI/rsc/pxd_app_icon.png</normaloff>:/IconGUI/rsc/pxd_app_icon.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="DescriptionLabel">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Description</string>
-     </property>
-    </widget>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="DescriptionLabel">
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>8</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Description</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="ValueLabel">
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Value:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLineEdit" name="ValueEdit">
+       <property name="minimumSize">
+        <size>
+         <width>277</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
-    <widget class="QLabel" name="ValueLabel">
-     <property name="text">
-      <string>Value:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="ValueEdit">
-     <property name="minimumSize">
-      <size>
-       <width>277</width>
-       <height>0</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QSplitter" name="splitter">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <widget class="QPushButton" name="OKButton">
-      <property name="text">
-       <string>OK</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="CancelButton">
-      <property name="text">
-       <string>Cancel</string>
-      </property>
-     </widget>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="OKButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="CancelButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="Resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>CancelButton</sender>
@@ -72,12 +141,12 @@
    <slot>cancelPressed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>290</x>
-     <y>149</y>
+     <x>249</x>
+     <y>78</y>
     </hint>
     <hint type="destinationlabel">
-     <x>333</x>
-     <y>23</y>
+     <x>252</x>
+     <y>78</y>
     </hint>
    </hints>
   </connection>
@@ -88,12 +157,12 @@
    <slot>OKPressed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>76</x>
-     <y>149</y>
+     <x>140</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>172</x>
-     <y>42</y>
+     <x>61</x>
+     <y>96</y>
     </hint>
    </hints>
   </connection>

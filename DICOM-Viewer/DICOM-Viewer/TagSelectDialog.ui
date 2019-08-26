@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="Resource.qrc">
+    <normaloff>:/IconGUI/rsc/pxd_app_icon.png</normaloff>:/IconGUI/rsc/pxd_app_icon.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTableWidget" name="tableWidget">
@@ -35,15 +39,39 @@
       <property name="text">
        <string>Tag ID</string>
       </property>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>8</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
      </column>
      <column>
       <property name="text">
        <string>Description</string>
       </property>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>8</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
      </column>
      <column>
       <property name="text">
        <string>VR</string>
+      </property>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>8</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
       </property>
      </column>
     </widget>
@@ -119,7 +147,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="Resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonOK</sender>

@@ -69,7 +69,7 @@
     </QtUic>
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="DICOMViewer.qrc">
+    <QtRcc Include="Resource.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>
@@ -77,9 +77,17 @@
     <ClInclude Include="DcmWidgetElement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DICOM-Viewer.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="rsc\pxd_app_icon.ico" />
   </ItemGroup>
 </Project>

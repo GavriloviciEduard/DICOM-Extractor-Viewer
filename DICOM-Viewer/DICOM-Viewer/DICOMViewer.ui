@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>719</width>
-    <height>514</height>
+    <width>1024</width>
+    <height>768</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -15,6 +15,10 @@
   </property>
   <property name="windowTitle">
    <string>PixelData DICOM Editor</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="Resource.qrc">
+    <normaloff>:/IconGUI/rsc/pxd_app_icon.png</normaloff>:/IconGUI/rsc/pxd_app_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -151,6 +155,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="buttonEdit">
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Edit Tag</string>
         </property>
@@ -158,6 +168,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="buttonDelete">
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Delete Tag</string>
         </property>
@@ -165,6 +181,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="buttonInsert">
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Insert Tag</string>
         </property>
@@ -209,8 +231,14 @@
       </item>
       <item>
        <widget class="QPushButton" name="buttonClose">
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
         <property name="text">
-         <string>Close</string>
+         <string>Exit</string>
         </property>
        </widget>
       </item>
@@ -223,7 +251,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>719</width>
+     <width>1024</width>
      <height>21</height>
     </rect>
    </property>
@@ -292,6 +320,7 @@
  <layoutdefault spacing="6" margin="11"/>
  <resources>
   <include location="DICOMViewer.qrc"/>
+  <include location="Resource.qrc"/>
  </resources>
  <connections>
   <connection>

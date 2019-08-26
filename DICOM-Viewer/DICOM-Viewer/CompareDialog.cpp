@@ -11,6 +11,9 @@ CompareDialog::CompareDialog(QWidget * parent)
 	ui.tableWidget1->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui.tableWidget1->setColumnWidth(2, ui.tableWidget1->columnWidth(2) * 3);
 	this->setAttribute(Qt::WA_DeleteOnClose, true);
+	QHeaderView *verticalHeader = ui.tableWidget1->verticalHeader();
+	verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
+	verticalHeader->setDefaultSectionSize(10);
 }
 
 //========================================================================================================================
@@ -669,8 +672,8 @@ void CompareDialog::loadFile1()
 		this->loadFile(&file1, fileName, true);
 		std::string nr = std::to_string(getFileSize(fileName.toStdString()));
 		precision(nr, 2);
-		ui.labelSize1->setText("Size: " + QString::fromStdString(nr) + " MB");
-		ui.labelPath1->setText("Path: " + fileName);
+		ui.labelSize1->setText("Size File 1: " + QString::fromStdString(nr) + " MB");
+		ui.labelPath1->setText("Path File 1: " + fileName);
 	}
 }
 
@@ -688,8 +691,8 @@ void CompareDialog::loadFile2()
 		this->loadFile(&file2, fileName, false);
 		std::string nr = std::to_string(getFileSize(fileName.toStdString()));
 		precision(nr, 2);
-		ui.labelSize2->setText("Size: " + QString::fromStdString(nr) + " MB");
-		ui.labelPath2->setText("Path: " + fileName);
+		ui.labelSize2->setText("Size File 2: " + QString::fromStdString(nr) + " MB");
+		ui.labelPath2->setText("Path File 2: " + fileName);
 	}
 }
 

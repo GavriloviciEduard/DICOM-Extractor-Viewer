@@ -131,9 +131,10 @@
     <QtUic Include="TagSelectDialog.ui" />
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="DICOMViewer.qrc" />
+    <QtRcc Include="Resource.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource1.h" />
     <QtMoc Include="CompareDialog.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\..\library\Debug\DCMTK\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\..\library\Debug\DCMTK\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
@@ -149,8 +150,13 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DICOM-Viewer.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="rsc\pxd_app_icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
