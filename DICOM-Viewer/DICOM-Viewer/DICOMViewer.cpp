@@ -23,6 +23,21 @@ DICOMViewer::DICOMViewer(QWidget *parent) : QMainWindow(parent)
 }
 
 //========================================================================================================================
+void replace(std::string& str, const std::string& from, const std::string& to)
+{
+	if (from.empty())
+		return;
+
+	size_t start_pos = 0;
+
+	while ((start_pos = str.find(from, start_pos)) != std::string::npos)
+	{
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length();
+	}
+}
+
+//========================================================================================================================
 void DICOMViewer::fileTriggered(QAction* qaction)
 {
 	const QString option = qaction->text();
@@ -109,9 +124,7 @@ void DICOMViewer::insertInTable(DcmElement* element)
 		for (auto widget_element : this->nestedElements)
 		{
 			indent(widget_element, widget_element.getDepth());
-
 			this->insert(widget_element, globalIndex);
-
 			DcmWidgetElement copyElement = DcmWidgetElement(widget_element);
 			copyElement.setTableIndex(globalIndex);
 			this->elements.push_back(copyElement);
@@ -283,15 +296,12 @@ DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfIt
 			OFstatic_cast(Uint16, element->getETag()));
 		DcmTag tagName = DcmTag(tagKey);
 		DcmVR vr = DcmVR(element->getVR());
-		std::string str;
-
-		for (int i = 0; i < 10; i++)
-		{
-			OFString value;
-			element->getOFString(value, i, false);
-			str.append(value.c_str());
-			str.append(" ");
-		}
+		OFString value;
+		element->getOFStringArray(value,true);
+		std::string finalString(value.c_str());
+		replace(finalString, "\\", " ");
+	
+	
 
 		DcmWidgetElement widgetElement = DcmWidgetElement(
 			QString::fromStdString(tagKey.toString().c_str()),
@@ -299,7 +309,7 @@ DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfIt
 			QString::fromStdString(std::to_string(element->getVM())),
 			QString::fromStdString(std::to_string(element->getLength())),
 			tagName.getTagName(),
-			QString::fromStdString(str));
+			QString::fromStdString(finalString));
 
 		return widgetElement;
 	}
@@ -311,15 +321,11 @@ DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfIt
 			OFstatic_cast(Uint16, sequence->getETag()));
 		DcmTag tagName = DcmTag(tagKey);
 		DcmVR vr = DcmVR(sequence->getVR());
-		std::string str;
-
-		for (int i = 0; i < 10; i++)
-		{
-			OFString value;
-			sequence->getOFString(value, i, false);
-			str.append(value.c_str());
-			str.append(" ");
-		}
+		OFString value;
+		sequence->getOFStringArray(value, true);
+		std::string finalString(value.c_str());
+		replace(finalString, "\\", " ");
+		
 
 		DcmWidgetElement widgetElement = DcmWidgetElement(
 			QString::fromStdString(tagKey.toString().c_str()),
@@ -327,7 +333,7 @@ DcmWidgetElement DICOMViewer::createElement(DcmElement* element, DcmSequenceOfIt
 			QString::fromStdString(std::to_string(sequence->getVM())),
 			QString::fromStdString(std::to_string(sequence->getLength())),
 			tagName.getTagName(),
-			QString::fromStdString(str));
+			QString::fromStdString(finalString));
 
 		return widgetElement;
 	}
@@ -759,9 +765,8 @@ void DICOMViewer::createSimpleEditDialog(DcmWidgetElement element)
 }
 
 //========================================================================================================================
-void DICOMViewer::generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements) //CRAPA GRAV -> StackOverflow
+void DICOMViewer::generatePathToRoot(DcmWidgetElement element, int row, QList<DcmWidgetElement> *elements)
 {
-
 	if (element.getDepth() == 0)
 	{
 		return;

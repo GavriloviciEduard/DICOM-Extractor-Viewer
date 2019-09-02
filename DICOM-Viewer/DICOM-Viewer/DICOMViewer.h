@@ -57,6 +57,7 @@ class DICOMViewer final : public QMainWindow
 		int currentRow(DcmWidgetElement element,const int& finalRow) const;
 		static void precision(std::string& nr, const int& precision);
 		void findIndexInserted(DcmWidgetElement& element);
+		friend void replace(std::string& str, const std::string& from, const std::string& to);
 
 	private slots:
 		void fileTriggered(QAction* qaction);
