@@ -11,55 +11,56 @@ DcmWidgetElement::DcmWidgetElement(const QString &itemTag, const QString &itemVR
 }
 
 //========================================================================================================================
-QString DcmWidgetElement::getItemTag()
+QString DcmWidgetElement::getItemTag() const
 {
 	return this->itemTag;
 }
 
 //========================================================================================================================
-QString DcmWidgetElement::getItemVR()
+QString DcmWidgetElement::getItemVR() const
 {
 	return this->itemVR;
 }
 
 //========================================================================================================================
-QString DcmWidgetElement::getItemVM()
+QString DcmWidgetElement::getItemVM() const
 {
 	return this->itemVM;
 }
 
 //========================================================================================================================
-QString DcmWidgetElement::getItemLength()
+QString DcmWidgetElement::getItemLength() const
 {
 	return this->itemLength;
 }
 
 //========================================================================================================================
-QString DcmWidgetElement::getItemDescription()
+QString DcmWidgetElement::getItemDescription() const
 {
 	return this->itemDescription;
 }
 
 //========================================================================================================================
-QString DcmWidgetElement::getItemValue()
+QString DcmWidgetElement::getItemValue() const
 {
 	return this->itemValue;
 }
 
 //========================================================================================================================
-int DcmWidgetElement::getTableIndex()
+int DcmWidgetElement::getTableIndex() const
 {
 	return this->tableIndex;
 }
 
 //========================================================================================================================
-std::string DcmWidgetElement::toString()
+std::string DcmWidgetElement::toString() const
 {
-	return std::string(this->itemTag.toStdString() + " " + this->itemVM.toStdString() + " "+ this->itemVR.toStdString() + " " + this->itemLength.toStdString() + " " + this->itemDescription.toStdString() + " " + this->itemValue.toStdString());
+	return std::string(this->itemTag.toStdString() + " " + this->itemVM.toStdString() + " "+ this->itemVR.toStdString() + " " 
+	+ this->itemLength.toStdString() + " " + this->itemDescription.toStdString() + " " + this->itemValue.toStdString());
 }
 
 //========================================================================================================================
-int DcmWidgetElement::getDepth()
+int DcmWidgetElement::getDepth() const
 {
 	return this->depth;
 }
@@ -107,13 +108,15 @@ void DcmWidgetElement::setItemTag(const QString & final)
 }
 
 //========================================================================================================================
-bool DcmWidgetElement::checkIfContains(QString str)
+bool DcmWidgetElement::checkIfContains(const QString& str) const
 {
-	return this->itemTag.toUpper().contains(str.toUpper()) || this->itemVM.toUpper().contains(str.toUpper()) || this->itemVR.toUpper().contains(str.toUpper()) || this->itemLength.toUpper().contains(str.toUpper()) || this->itemDescription.toUpper().contains(str.toUpper()) || this->itemValue.toUpper().contains(str.toUpper());
+	return this->itemTag.toUpper().contains(str.toUpper()) || this->itemVM.toUpper().contains(str.toUpper()) ||
+	this->itemVR.toUpper().contains(str.toUpper()) || this->itemLength.toUpper().contains(str.toUpper()) || 
+	this->itemDescription.toUpper().contains(str.toUpper()) || this->itemValue.toUpper().contains(str.toUpper());
 }
 
 //========================================================================================================================
-DcmTagKey DcmWidgetElement::extractTagKey()
+DcmTagKey DcmWidgetElement::extractTagKey() const
 {
 	QString str = this->getItemTag().toUpper();
 	str.replace(" ", "");
@@ -130,9 +133,9 @@ void DcmWidgetElement::calculateDepthFromTag()
 	QString str = this->getItemTag();
 	int numberOfSpaces = 0;
 
-	for (int i = 0; i < str.size(); i++)
+	for (auto& i : str)
 	{
-		if (str[i] == ' ')
+		if (i == ' ')
 		{
 			numberOfSpaces++;
 		}
@@ -141,10 +144,20 @@ void DcmWidgetElement::calculateDepthFromTag()
 	this->setDepth(numberOfSpaces / 2);
 }
 
+void DcmWidgetElement::setVR(const QString& str)
+{
+	this->itemVR = str;
+}
+
+void DcmWidgetElement::setValue(const QString& str)
+{
+	this->itemValue = str;
+}
+
 //========================================================================================================================
 int DcmWidgetElement::hexToDecimal(const char * hex)
 {
-	int length = strlen(hex);
+	const int length = strlen(hex);
 	int base = 1;
 	int result = 0;
 
@@ -167,7 +180,7 @@ int DcmWidgetElement::hexToDecimal(const char * hex)
 }
 
 //========================================================================================================================
-bool DcmWidgetElement::operator==(DcmWidgetElement & element)
+bool DcmWidgetElement::operator==(DcmWidgetElement & element) const
 {
 	return this->getItemTag().replace(" ","") == element.getItemTag().replace(" ","") &&
 		this->getItemVM() == element.getItemVM() &&
@@ -177,19 +190,19 @@ bool DcmWidgetElement::operator==(DcmWidgetElement & element)
 }
 
 //========================================================================================================================
-bool DcmWidgetElement::operator>(DcmWidgetElement & element)
+bool DcmWidgetElement::operator>(DcmWidgetElement & element) const
 {
 	return this->extractTagKey() > element.extractTagKey();
 }
 
 //========================================================================================================================
-bool DcmWidgetElement::operator<(DcmWidgetElement & element)
+bool DcmWidgetElement::operator<(DcmWidgetElement & element) const
 {
 	return this->extractTagKey() < element.extractTagKey();
 }
 
 //========================================================================================================================
-int DcmWidgetElement::compareTagKey(DcmWidgetElement & element)
+int DcmWidgetElement::compareTagKey(DcmWidgetElement & element) const
 {
 	if (this->extractTagKey() == element.extractTagKey())
 	{

@@ -1,10 +1,9 @@
 #pragma once
 
-//#ifdef _DEBUG
-//#include "vld.h"
-//#pragma  comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
-//#endif
-
+#ifdef _DEBUG
+#include "vld.h"
+#pragma  comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+#endif
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qmessagebox.h>
@@ -17,6 +16,10 @@
 #include "EditDialogSimple.h"
 #include "TagSelectDialog.h"
 #include "CompareDialog.h"
+#include <dcmtk/dcmdata/dcpixseq.h>
+#include <dcmtk/dcmdata/dcpixel.h>
+#include <dcmtk/dcmdata/dcpxitem.h>
+
 
 
 class DICOMViewer final : public QMainWindow

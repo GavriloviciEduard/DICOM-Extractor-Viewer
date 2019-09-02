@@ -17,15 +17,32 @@ CompareDialog::CompareDialog(QWidget * parent)
 }
 
 //========================================================================================================================
-void CompareDialog::loadFile(DcmFileFormat* file, QString fileName, bool first)
+void CompareDialog::replace(std::string & str, const std::string & from, const std::string & to)
+{
+	if (from.empty())
+		return;
+
+	size_t start_pos = 0;
+
+	while ((start_pos = str.find(from, start_pos)) != std::string::npos)
+	{
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length();
+	}
+}
+
+//========================================================================================================================
+void CompareDialog::loadFile(DcmFileFormat* file, const QString& fileName, bool first)
 {
 	if (file->loadFile(fileName.toStdString().c_str()).good())
 	{
+		ui.tableWidget1->scrollToTop();
 		extractData(file);
 	}
+	
 	else
 	{
-		this->alertFailed("Failed to open file!");
+		alertFailed("Failed to open file!");
 	}
 }
 
@@ -35,12 +52,12 @@ void CompareDialog::extractData(DcmFileFormat* file)
 	DcmMetaInfo* metaInfo = file->getMetaInfo();
 	DcmDataset* dataSet = file->getDataset();
 
-	for (int i = 0; i < metaInfo->card(); i++)
+	for (unsigned long i = 0; i < metaInfo->card(); i++)
 	{
 		insertInTable(metaInfo->getElement(i),file);
 	}
 
-	for (int i = 0; i < dataSet->card(); i++)
+	for (unsigned long i = 0; i < dataSet->card(); i++)
 	{
 		insertInTable(dataSet->getElement(i),file);
 	}
@@ -60,12 +77,12 @@ void CompareDialog::insertInTable(DcmElement* element, DcmFileFormat* file)
 	this->depthRE = 0;
 	this->getNestedSequences(element->getTag().getBaseTag(),nullptr,file);
 
-	if (this->nestedElements.size())
+	if (!this->nestedElements.empty())
 	{
-		for (auto element : this->nestedElements)
+		for (auto widget_element : this->nestedElements)
 		{
-			this->indent(element, element.getDepth());
-			DcmWidgetElement copyElement = DcmWidgetElement(element);
+			indent(widget_element, widget_element.getDepth());
+			DcmWidgetElement copyElement = DcmWidgetElement(widget_element);
 			copyElement.setTableIndex(globalIndex);
 			copyElement.calculateDepthFromTag();
 
@@ -108,7 +125,7 @@ void CompareDialog::insertInTable(DcmElement* element, DcmFileFormat* file)
 }
 
 //========================================================================================================================
-void CompareDialog::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence, DcmFileFormat* file)
+void CompareDialog::getNestedSequences(const DcmTagKey& tag, DcmSequenceOfItems* sequence, DcmFileFormat* file)
 {
 	OFCondition cond = OFCondition(EC_CorruptedData);
 
@@ -123,7 +140,7 @@ void CompareDialog::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequen
 		this->nestedElements.push_back(widgetElement1);
 		this->depthRE++;
 
-		for (int i = 0; i < sequence->card(); i++)
+		for (unsigned long i = 0; i < sequence->card(); i++)
 		{
 			DcmWidgetElement widgetElement2 = createElement(nullptr, nullptr, sequence->getItem(i));
 			widgetElement2.setDepth(this->depthRE);
@@ -132,7 +149,7 @@ void CompareDialog::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequen
 			this->iterateItem(sequence->getItem(i), this->depthRE, file);
 			DcmWidgetElement widgetElementDelim = DcmWidgetElement(
 				QString("(FFFE,E00D)"),
-				QString("??"), QString("0"),
+				QString(""), QString("0"),
 				QString("0"),
 				QString("ItemDelimitationItem"),
 				QString(""));
@@ -143,7 +160,7 @@ void CompareDialog::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequen
 
 		DcmWidgetElement widgetElementDelim = DcmWidgetElement(
 			QString("(FFFE,E0DD)"),
-			QString("??"),
+			QString(""),
 			QString("0"),
 			QString("0"),
 			QString("SequenceDelimitationItem"),
@@ -157,6 +174,9 @@ void CompareDialog::getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequen
 //========================================================================================================================
 void CompareDialog::indent(DcmWidgetElement & element, int depth)
 {
+	if(depth ==-1)
+		return;
+	
 	QString str = element.getItemTag();
 
 	while (depth--)
@@ -172,7 +192,7 @@ void CompareDialog::iterateItem(DcmItem * item, int & depth, DcmFileFormat* file
 {
 	depth++;
 
-	for (int i = 0; i < item->getNumberOfValues(); i++)
+	for (unsigned long i = 0; i < item->getNumberOfValues(); i++)
 	{
 		DcmWidgetElement widgetElement = createElement(item->getElement(i), nullptr, nullptr);
 		widgetElement.setItemTag(widgetElement.getItemTag().toUpper());
@@ -191,7 +211,7 @@ void CompareDialog::iterateItem(DcmItem * item, int & depth, DcmFileFormat* file
 }
 
 //========================================================================================================================
-void CompareDialog::insertRight(DcmWidgetElement element, int & index)
+void CompareDialog::insertRight(DcmWidgetElement element, int & index) const
 {
 	if (index >= ui.tableWidget1->rowCount())
 	{
@@ -204,7 +224,7 @@ void CompareDialog::insertRight(DcmWidgetElement element, int & index)
 }
 
 //========================================================================================================================
-void CompareDialog::insert(DcmWidgetElement element, int & index)
+void CompareDialog::insert(DcmWidgetElement element, int & index) const
 {
 	if (index >= ui.tableWidget1->rowCount())
 	{
@@ -217,7 +237,7 @@ void CompareDialog::insert(DcmWidgetElement element, int & index)
 }
 
 //========================================================================================================================
-DcmWidgetElement CompareDialog::createElement(DcmElement * element, DcmSequenceOfItems * sequence, DcmItem * item)
+DcmWidgetElement CompareDialog::createElement(DcmElement * element, DcmSequenceOfItems * sequence, DcmItem * item) const
 {
 	if (element)
 	{
@@ -226,14 +246,39 @@ DcmWidgetElement CompareDialog::createElement(DcmElement * element, DcmSequenceO
 			OFstatic_cast(Uint16, element->getETag()));
 		DcmTag tagName = DcmTag(tagKey);
 		DcmVR vr = DcmVR(element->getVR());
-		std::string str;
+		std::string finalString;
 
-		for (int i = 0; i < 10; i++)
+		if (tagKey != DCM_PixelData && element->getLengthField() <= 50)
 		{
 			OFString value;
-			element->getOFString(value, i, false);
-			str.append(value.c_str());
-			str.append(" ");
+			element->getOFStringArray(value, true);
+			finalString = value.c_str();
+			replace(finalString, "\\", " ");
+		}
+
+		else
+		{
+			for (int i = 0; i < 10; i++)
+			{
+				OFString value;
+				element->getOFString(value, i, false);
+				finalString.append(value.c_str());
+				finalString.append(" ");
+			}
+		}
+
+
+		if (strcmp(vr.getVRName(), "??") == 0)
+		{
+			DcmWidgetElement widgetElement = DcmWidgetElement(
+				QString::fromStdString(tagKey.toString().c_str()),
+				QString::fromStdString(""),
+				QString::fromStdString(std::to_string(element->getVM())),
+				QString::fromStdString(std::to_string(element->getLength())),
+				"",
+				QString::fromStdString(finalString));
+
+			return widgetElement;
 		}
 
 		DcmWidgetElement widgetElement = DcmWidgetElement(
@@ -242,26 +287,53 @@ DcmWidgetElement CompareDialog::createElement(DcmElement * element, DcmSequenceO
 			QString::fromStdString(std::to_string(element->getVM())),
 			QString::fromStdString(std::to_string(element->getLength())),
 			tagName.getTagName(),
-			QString::fromStdString(str));
+			QString::fromStdString(finalString));
+
 
 		return widgetElement;
 	}
 
-	else if (sequence)
+	if (sequence)
 	{
 		DcmTagKey tagKey = DcmTagKey(
 			OFstatic_cast(Uint16, sequence->getGTag()),
 			OFstatic_cast(Uint16, sequence->getETag()));
 		DcmTag tagName = DcmTag(tagKey);
 		DcmVR vr = DcmVR(sequence->getVR());
-		std::string str;
+		std::string finalString;
 
-		for (int i = 0; i < 10; i++)
+		if (tagKey != DCM_PixelData && sequence->getLengthField() <= 50)
 		{
 			OFString value;
-			sequence->getOFString(value, i, false);
-			str.append(value.c_str());
-			str.append(" ");
+			sequence->getOFStringArray(value, true);
+			finalString = value.c_str();
+			replace(finalString, "\\", " ");
+		}
+
+
+		else
+		{
+			for (int i = 0; i < 10; i++)
+			{
+				OFString value;
+				sequence->getOFString(value, i, false);
+				finalString.append(value.c_str());
+				finalString.append(" ");
+			}
+
+		}
+
+		if (strcmp(vr.getVRName(), "??") == 0)
+		{
+			DcmWidgetElement widgetElement = DcmWidgetElement(
+				QString::fromStdString(tagKey.toString().c_str()),
+				QString::fromStdString(""),
+				QString::fromStdString(std::to_string(sequence->getVM())),
+				QString::fromStdString(std::to_string(sequence->getLength())),
+				"",
+				QString::fromStdString(finalString));
+
+			return widgetElement;
 		}
 
 		DcmWidgetElement widgetElement = DcmWidgetElement(
@@ -270,18 +342,33 @@ DcmWidgetElement CompareDialog::createElement(DcmElement * element, DcmSequenceO
 			QString::fromStdString(std::to_string(sequence->getVM())),
 			QString::fromStdString(std::to_string(sequence->getLength())),
 			tagName.getTagName(),
-			QString::fromStdString(str));
+			QString::fromStdString(finalString));
+
 
 		return widgetElement;
 	}
 
-	else if (item)
+	if (item)
 	{
 		DcmTagKey tagKey = DcmTagKey(
 			OFstatic_cast(Uint16, item->getGTag()),
 			OFstatic_cast(Uint16, item->getETag()));
 		DcmTag tagName = DcmTag(tagKey);
 		DcmVR vr = DcmVR(item->getVR());
+
+
+		if (strcmp(vr.getVRName(), "??") == 0)
+		{
+			DcmWidgetElement widgetElement = DcmWidgetElement(
+				QString::fromStdString(tagKey.toString().c_str()),
+				QString::fromStdString(""),
+				QString::fromStdString(std::to_string(item->getVM())),
+				QString::fromStdString(std::to_string(item->getLength())),
+				"",
+				QString::fromStdString(""));
+
+			return widgetElement;
+		}
 
 		DcmWidgetElement widgetElement = DcmWidgetElement(
 			QString::fromStdString(tagKey.toString().c_str()),
@@ -291,14 +378,16 @@ DcmWidgetElement CompareDialog::createElement(DcmElement * element, DcmSequenceO
 			tagName.getTagName(),
 			QString::fromStdString(""));
 
+
 		return widgetElement;
 	}
+
 
 	return DcmWidgetElement();
 }
 
 //========================================================================================================================
-void CompareDialog::insertBoth(DcmWidgetElement el1, DcmWidgetElement el2, int &index, int status)
+void CompareDialog::insertBoth(DcmWidgetElement el1, DcmWidgetElement el2, int &index, const int status) const
 {
 
 	ui.tableWidget1->insertRow(index);
@@ -352,7 +441,7 @@ void CompareDialog::insertBoth(DcmWidgetElement el1, DcmWidgetElement el2, int &
 }
 
 //========================================================================================================================
-void CompareDialog::insertSequence(int status, int& index1, int& index2)
+void CompareDialog::insertSequence(const int status, int& index1, int& index2)
 {
 	if (status == 1)
 	{
@@ -363,8 +452,8 @@ void CompareDialog::insertSequence(int status, int& index1, int& index2)
 
 		while (this->elements1[index1].getItemDescription() == "Item" && this->elements2[index2].getItemDescription() == "Item")
 		{
-			int item1Depth = this->elements1[index1].getDepth();
-			int item2Depth = this->elements2[index2].getDepth();
+			const int item1Depth = this->elements1[index1].getDepth();
+			const int item2Depth = this->elements2[index2].getDepth();
 			insertBoth(this->elements1[index1], this->elements2[index2], globalIndex, status);
 			index1++;
 			index2++;
@@ -437,7 +526,7 @@ void CompareDialog::insertSequence(int status, int& index1, int& index2)
 
 		while (this->elements1[index1].getItemDescription() == "Item")
 		{
-			int itemDepth = this->elements1[index1].getDepth();
+			const int itemDepth = this->elements1[index1].getDepth();
 			insertBoth(this->elements1[index1], DcmWidgetElement(this->elements1[index1].getItemTag(), "", "", "", "", ""), globalIndex, 3);
 			index1++;
 			globalIndex++;
@@ -467,7 +556,7 @@ void CompareDialog::insertSequence(int status, int& index1, int& index2)
 			
 		}
 
-		if (index1 < this->elements1.size() && this->isDelimitation(this->elements1[index1]))
+		if (index1 < static_cast<int>(this->elements1.size()) && isDelimitation(this->elements1[index1]))
 		{
 			insertBoth(this->elements1[index1], DcmWidgetElement(this->elements1[index1].getItemTag(), "", "", "", "", ""), globalIndex, 3);
 			index1++;
@@ -483,7 +572,7 @@ void CompareDialog::insertSequence(int status, int& index1, int& index2)
 
 		while (this->elements2[index2].getItemDescription() == "Item")
 		{
-			int itemDepth = this->elements2[index2].getDepth();
+			const int itemDepth = this->elements2[index2].getDepth();
 			insertBoth(DcmWidgetElement(this->elements2[index2].getItemTag(), "", "", "", "", ""), this->elements2[index2], globalIndex, 2);
 			index2++;
 			globalIndex++;
@@ -511,7 +600,7 @@ void CompareDialog::insertSequence(int status, int& index1, int& index2)
 		}
 
 	
-		if (this->isDelimitation(this->elements2[index2]))
+		if (isDelimitation(this->elements2[index2]))
 		{
 			insertBoth(DcmWidgetElement(this->elements2[index2].getItemTag(), "", "", "", "", ""), this->elements2[index2], globalIndex, 2);
 			index2++;
@@ -530,7 +619,7 @@ void CompareDialog::merge()
 		int index2 = 0;
 
 
-		while (index1 < elements1.size() - 1 && index2 < elements2.size() - 1)
+		while (index1 < static_cast<int>(elements1.size()) - 1 && index2 < static_cast<int>( elements2.size()) - 1)
 		{
 
 			if (elements1[index1].getItemVR() == "SQ" && elements2[index2].getItemVR() == "SQ")
@@ -578,7 +667,7 @@ void CompareDialog::merge()
 
 				else
 				{
-					DcmWidgetElement empty = DcmWidgetElement(elements2[index2].getItemTag(), "", "", "", "", "");
+					const DcmWidgetElement empty = DcmWidgetElement(elements2[index2].getItemTag(), "", "", "", "", "");
 					insertBoth(empty, elements2[index2], globalIndex, 2);
 					index2++;
 					globalIndex++;
@@ -594,7 +683,7 @@ void CompareDialog::merge()
 
 				else
 				{
-					DcmWidgetElement empty = DcmWidgetElement(elements1[index1].getItemTag(), "", "", "", "", "");
+					const DcmWidgetElement empty = DcmWidgetElement(elements1[index1].getItemTag(), "", "", "", "", "");
 					insertBoth(elements1[index1], empty, globalIndex, 3);
 					index1++;
 					globalIndex++;
@@ -602,7 +691,7 @@ void CompareDialog::merge()
 			}
 		}
 
-		while (index1 < elements1.size() - 1)
+		while (index1 < static_cast<int>(elements1.size()) - 1)
 		{
 			if (elements1[index1].getItemVR() == "SQ")
 			{
@@ -612,14 +701,14 @@ void CompareDialog::merge()
 
 			else
 			{
-				DcmWidgetElement empty = DcmWidgetElement(elements1[index1].getItemTag(), "", "", "", "", "");
+				const DcmWidgetElement empty = DcmWidgetElement(elements1[index1].getItemTag(), "", "", "", "", "");
 				insertBoth(elements1[index1],empty, globalIndex, 3);
 				index1++;
 				globalIndex++;
 			}
 		}
 
-		while (index2 < elements2.size() -1)
+		while (index2 < static_cast<int>(elements2.size()) -1)
 		{
 			if (elements2[index2].getItemVR() == "SQ")
 			{
@@ -629,7 +718,7 @@ void CompareDialog::merge()
 
 			else
 			{
-				DcmWidgetElement empty = DcmWidgetElement(elements2[index2].getItemTag(), "", "", "", "", "");
+				const DcmWidgetElement empty = DcmWidgetElement(elements2[index2].getItemTag(), "", "", "", "", "");
 				insertBoth(empty, elements2[index2], globalIndex, 2);
 				index2++;
 				globalIndex++;
@@ -641,7 +730,7 @@ void CompareDialog::merge()
 }
 
 //========================================================================================================================
-void CompareDialog::clearTable()
+void CompareDialog::clearTable() const
 {
 	for (int i = ui.tableWidget1->rowCount(); i >= 0; i--)
 	{
@@ -661,7 +750,7 @@ bool CompareDialog::isDelimitation(DcmWidgetElement & el)
 //========================================================================================================================
 void CompareDialog::loadFile1()
 {
-	QString fileName = QFileDialog::getOpenFileName(this);
+	const QString fileName = QFileDialog::getOpenFileName(this);
 
 	if (!fileName.isEmpty())
 	{
@@ -680,7 +769,7 @@ void CompareDialog::loadFile1()
 //========================================================================================================================
 void CompareDialog::loadFile2()
 {
-	QString fileName = QFileDialog::getOpenFileName(this);
+	const QString fileName = QFileDialog::getOpenFileName(this);
 
 	if (!fileName.isEmpty())
 	{
@@ -697,15 +786,16 @@ void CompareDialog::loadFile2()
 }
 
 //========================================================================================================================
-void CompareDialog::alertFailed(std::string message)
+void CompareDialog::alertFailed(const std::string& message)
 {
-	QMessageBox* messageBox = new QMessageBox();
+	auto* messageBox = new QMessageBox();
 	messageBox->setIcon(QMessageBox::Warning);
 	messageBox->setText(QString::fromStdString(message));
 	messageBox->exec();
 	delete messageBox;
 }
 
+//========================================================================================================================
 void CompareDialog::populateTableElementsVector()
 {
 	this->tableElements.clear();
@@ -718,6 +808,7 @@ void CompareDialog::populateTableElementsVector()
 	}
 }
 
+//========================================================================================================================
 void CompareDialog::precision(std::string & nr, const int & precision)
 {
 	int len = 0;
@@ -739,7 +830,8 @@ void CompareDialog::precision(std::string & nr, const int & precision)
 	nr.resize(len);
 }
 
-double CompareDialog::getFileSize(std::string fileName)
+//========================================================================================================================
+double CompareDialog::getFileSize(const std::string& fileName)
 {
 	std::ifstream in_file(fileName, std::ios::binary | std::ios::ate);
 	double size = in_file.tellg() / 1024;
@@ -748,12 +840,13 @@ double CompareDialog::getFileSize(std::string fileName)
 	return size;
 }
 
+//========================================================================================================================
 void CompareDialog::findText()
 {
-	QString text = ui.lineSearch->text();
+	const QString text = ui.lineSearch->text();
 	if (!text.isEmpty())
 	{
-		if (this->tableElements.size())
+		if (!this->tableElements.empty())
 		{
 			std::vector<std::tuple<DcmWidgetElement, DcmWidgetElement>> result;
 			for (auto tuple : this->tableElements)
@@ -765,7 +858,7 @@ void CompareDialog::findText()
 			}
 
 			clearTable();
-			for (int i = 0; i < result.size(); i++)
+			for (unsigned long i = 0; i < result.size(); i++)
 			{
 				ui.tableWidget1->insertRow(i);
 				ui.tableWidget1->setItem(i, 0, new QTableWidgetItem(std::get<0>(result[i]).getItemTag()));

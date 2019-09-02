@@ -6,25 +6,24 @@
 #include <dcmtk/dcmdata/dcdicent.h>
 #include "DcmWidgetElement.h"
 
-class TagSelectDialog : public QDialog
+class TagSelectDialog final : public QDialog
 {
-
 	Q_OBJECT;
-
-	private:
-		Ui::tagSelectDialog ui;
-		DcmWidgetElement element;
 
 	public:
 		explicit TagSelectDialog(QDialog* parent);
 		~TagSelectDialog();
-
-		DcmWidgetElement getElement();
-		void clearTable();
-		void populate();
+		DcmWidgetElement getElement() const;
+		void populate() const;
+		
+	private:
+		Ui::tagSelectDialog ui{};
+		DcmWidgetElement element;
+		void clearTable() const;
+		
 
 	private slots:
 		void okPressed();
 		void cancelPressed();
-		void findText();
+		void findText() const;
 };

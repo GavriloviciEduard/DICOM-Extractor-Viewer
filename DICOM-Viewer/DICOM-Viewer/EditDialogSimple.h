@@ -4,20 +4,20 @@
 #include <qdialog.h>
 #include <ui_EditDialogSimple.h>
 
-class EditDialogSimple : public QDialog
+class EditDialogSimple final : public QDialog
 {
 	Q_OBJECT
-
-	private:
-		Ui::simpleEditDialog ui;
-		bool valueModified = false;
 
 	public:
 		explicit EditDialogSimple(QDialog* parent);
 		~EditDialogSimple() { }
-		void setDescription(QString& description);
-		void setValue(QString& value);
-		QString getValue();
+		void setDescription(QString& description) const;
+		void setValue(QString& value) const;
+		QString getValue() const;
+
+	private:
+		Ui::simpleEditDialog ui{};
+		bool valueModified = false;
 
 	private slots:
 		void OKPressed();

@@ -9,7 +9,6 @@ TagSelectDialog::TagSelectDialog(QDialog * parent)
 	ui.tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
 	QHeaderView *verticalHeader = ui.tableWidget->verticalHeader();
 	verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
 	verticalHeader->setDefaultSectionSize(10);
@@ -22,13 +21,13 @@ TagSelectDialog::~TagSelectDialog()
 }
 
 //========================================================================================================================
-DcmWidgetElement TagSelectDialog::getElement()
+DcmWidgetElement TagSelectDialog::getElement() const
 {
 	return this->element;
 }
 
 //========================================================================================================================
-void TagSelectDialog::clearTable()
+void TagSelectDialog::clearTable() const
 {
 	for (int i = ui.tableWidget->rowCount() - 1; i >= 0; i--)
 	{
@@ -37,11 +36,11 @@ void TagSelectDialog::clearTable()
 }
 
 //========================================================================================================================
-void TagSelectDialog::populate()
+void TagSelectDialog::populate() const
 {
-	DcmDataDictionary* dictionary = new DcmDataDictionary(true,false);
+	auto* dictionary = new DcmDataDictionary(true,false);
 	DcmHashDictIterator iterStart = dictionary->normalBegin();
-	DcmHashDictIterator iterEnd = dictionary->normalEnd();
+	const DcmHashDictIterator iterEnd = dictionary->normalEnd();
 	int count = 0;
 
 	while (iterStart != iterEnd)
@@ -60,7 +59,7 @@ void TagSelectDialog::populate()
 			count++;
 		}
 
-		iterStart++;
+		++iterStart;
 	}
 
 	ui.tableWidget->resizeColumnsToContents();
@@ -72,13 +71,13 @@ void TagSelectDialog::okPressed()
 {
 	QList<QTableWidgetItem*> items = ui.tableWidget->selectedItems();
 
-	if (items.size())
+	if (!items.empty())
 	{
-		DcmWidgetElement element = DcmWidgetElement(items[0]->text(), items[2]->text(), "", "", items[1]->text(), ui.lineEdit->text());
+		const DcmWidgetElement element = DcmWidgetElement(items[0]->text(), items[2]->text(), "", "", items[1]->text(), ui.lineEdit->text());
 
 		if (element.getItemValue().isEmpty() && element.getItemVR() != "na" && element.getItemVR() != "SQ")
 		{
-			QMessageBox* box = new QMessageBox();
+			auto* box = new QMessageBox();
 			box->setText("No value entered!");
 			box->setIcon(QMessageBox::Warning);
 			box->exec();
@@ -98,17 +97,16 @@ void TagSelectDialog::cancelPressed()
 }
 
 //========================================================================================================================
-void TagSelectDialog::findText()
+void TagSelectDialog::findText() const
 {
-	QString text = ui.lineEditSearch->text();
+	const QString text = ui.lineEditSearch->text();
 	std::vector<DcmWidgetElement> result;
 
 	if (!text.isEmpty())
 	{
 		std::unique_ptr <DcmDataDictionary> dictionary = std::make_unique<DcmDataDictionary>(true, false);
 		DcmHashDictIterator iterStart = dictionary->normalBegin();
-		DcmHashDictIterator iterEnd = dictionary->normalEnd();
-		int count = 0;
+		const DcmHashDictIterator iterEnd = dictionary->normalEnd();
 
 		while (iterStart != iterEnd)
 		{
@@ -123,14 +121,14 @@ void TagSelectDialog::findText()
 				result.push_back(element);
 			}
 
-			iterStart++;
+			++iterStart;
 		}
 
-		if (result.size())
+		if (!result.empty())
 		{
 			clearTable();
 
-			for (int i = 0; i < result.size(); i++)
+			for (unsigned long i = 0; i < result.size(); i++)
 			{
 				if (result[i].getItemTag() != "(fffe,e00d)" &&result[i].getItemTag() != "(fffe,00dd)")
 				{

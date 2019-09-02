@@ -8,19 +8,19 @@ EditDialogSimple::EditDialogSimple(QDialog * parent)
 }
 
 //========================================================================================================================
-void EditDialogSimple::setDescription(QString& description)
+void EditDialogSimple::setDescription(QString& description) const
 {
 	ui.DescriptionLabel->setText(description);
 }
 
 //========================================================================================================================
-void EditDialogSimple::setValue(QString & value)
+void EditDialogSimple::setValue(QString & value) const
 {
 	ui.ValueEdit->setText(value.trimmed());
 }
 
 //========================================================================================================================
-QString EditDialogSimple::getValue()
+QString EditDialogSimple::getValue() const
 {
 	return ui.ValueEdit->text();
 }

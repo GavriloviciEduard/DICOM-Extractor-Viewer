@@ -9,12 +9,16 @@
 #include "dcmtk/dcmdata/dcmetinf.h"
 #include "dcmtk/dcmdata/dctagkey.h"
 
-class CompareDialog : public QWidget
+class CompareDialog final : public QWidget
 {
 	Q_OBJECT;
 
-	private:
-		Ui::dialogCompare ui;
+	public:
+		explicit CompareDialog(QWidget* parent);
+		~CompareDialog() = default;
+
+private:
+		Ui::dialogCompare ui{};
 		DcmFileFormat file1;
 		DcmFileFormat file2;
 		std::vector<DcmWidgetElement> elements1;
@@ -26,28 +30,26 @@ class CompareDialog : public QWidget
 		bool firstFile = false;
 		int loaded = 0;
 
-	public:
-		explicit CompareDialog(QWidget* parent);
-		~CompareDialog() {  }
-
-		void loadFile(DcmFileFormat* file, QString fileName, bool first);
-		void alertFailed(std::string message);
+		void loadFile(DcmFileFormat* file, const QString& fileName, bool first);
+		static void alertFailed(const std::string& message);
 		void extractData(DcmFileFormat* file);
 		void insertInTable(DcmElement* element, DcmFileFormat* file);
-		void getNestedSequences(DcmTagKey tag, DcmSequenceOfItems* sequence, DcmFileFormat* file);
-		void indent(DcmWidgetElement& element, int depth);
+		void getNestedSequences(const DcmTagKey& tag, DcmSequenceOfItems* sequence, DcmFileFormat* file);
+		static void indent(DcmWidgetElement& element, int depth);
 		void iterateItem(DcmItem *item, int& depth, DcmFileFormat* file);
-		void insert(DcmWidgetElement element, int &index);
-		void insertRight(DcmWidgetElement element, int &index);
-		DcmWidgetElement createElement(DcmElement* element = nullptr, DcmSequenceOfItems* sequence = nullptr, DcmItem* item = nullptr);
-		void insertBoth(DcmWidgetElement el1, DcmWidgetElement el2, int &index, int status);
+		void insert(DcmWidgetElement element, int &index) const;
+		void insertRight(DcmWidgetElement element, int &index) const;
+		DcmWidgetElement createElement(DcmElement* element = nullptr, DcmSequenceOfItems* sequence = nullptr, DcmItem* item = nullptr) const;
+		void insertBoth(DcmWidgetElement el1, DcmWidgetElement el2, int &index, int status) const;
 		void insertSequence(int status, int& index1, int& index2);
 		void merge();
-		void clearTable();
-		bool isDelimitation(DcmWidgetElement& el);
+		void clearTable() const;
+		static bool isDelimitation(DcmWidgetElement& el);
 		void populateTableElementsVector();
-		void precision(std::string& nr, const int& precision);
-		double getFileSize(std::string fileName);
+		static void precision(std::string& nr, const int& precision);
+		static double getFileSize(const std::string& fileName);
+		static void replace(std::string& str, const std::string& from, const std::string& to);
+
 
 	private slots:
 		void loadFile1();
